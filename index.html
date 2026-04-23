@@ -1,305 +1,226 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Iceman</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <title>Iceman</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
 
-<style>
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-}
+    html, body {
+      height: 100%;
+      overflow: hidden;
+      background: #0b0b0b;
+      color: white;
+    }
 
-body {
-  background: #0b0b0b;
-  color: white;
-  overflow: hidden;
-}
+    /* ===== SCROLL CONTAINER ===== */
+    .scroll-container {
+      height: 100vh;
+      overflow-y: scroll;
+      scroll-snap-type: y mandatory;
+      scrollbar-width: none;
+    }
+    .scroll-container::-webkit-scrollbar { display: none; }
 
-/* ===== HERO ===== */
-.hero {
-  position: fixed;
-  width: 100%;
-  height: 100vh;
-  background: #0b0b0b;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  z-index: 20;
+    /* ===== SECTIONS ===== */
+    section {
+      height: 100vh;
+      scroll-snap-align: start;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+    }
 
-  transition: transform 1s ease, opacity 1s ease;
-}
+    /* ===== HERO ===== */
+    #hero {
+      background: #0b0b0b;
+      transition: background 0.8s ease;
+      gap: 24px;
+    }
 
-.hero.hidden {
-  transform: translateY(-110%);
-  opacity: 0;
-  pointer-events: none;
-}
+    .logo {
+      font-size: 64px;
+      font-weight: 800;
+      letter-spacing: 10px;
+      text-transform: uppercase;
+    }
 
-.title {
-  font-size: 54px;
-  font-weight: 700;
-  letter-spacing: 6px;
-  margin-bottom: 18px;
-}
+    .countdown {
+      font-size: 20px;
+      color: #aaa;
+      letter-spacing: 3px;
+    }
 
-.countdown {
-  font-size: 18px;
-  color: #aaa;
-  margin-bottom: 35px;
-}
+    .singles {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      justify-content: center;
+      max-width: 860px;
+      padding: 0 16px;
+    }
 
-/* ===== SONGS (FIXED FOR APPLE MUSIC) ===== */
-.singles {
-  display: flex;
-  gap: 16px;
-  margin-bottom: 40px;
-  flex-wrap: wrap;
-  justify-content: center;
-  max-width: 900px;
-}
+    .singles iframe {
+      width: 260px;
+      height: 150px;
+      border-radius: 14px;
+      border: none;
+      overflow: hidden;
+    }
 
-.single {
-  width: 260px;
-  height: 150px;
-  border-radius: 14px;
-  overflow: hidden;
-  background: #111;
-}
+    .scroll-hint {
+      position: absolute;
+      bottom: 28px;
+      font-size: 12px;
+      letter-spacing: 3px;
+      color: #555;
+      animation: pulse 2s infinite;
+    }
 
-/* ENTER */
-.enter {
-  padding: 12px 34px;
-  border: 1px solid rgba(255,255,255,0.25);
-  border-radius: 30px;
-  cursor: pointer;
-  transition: 0.3s;
-}
+    @keyframes pulse {
+      0%, 100% { opacity: 0.4; }
+      50% { opacity: 1; }
+    }
 
-.enter:hover {
-  background: white;
-  color: black;
-}
+    /* ===== BOOKLET ===== */
+    #booklet {
+      background: #050505;
+      padding: 0;
+    }
 
-/* ===== HEADER ===== */
-header {
-  position: fixed;
-  top: 0;
-  width: 100%;
-  height: 70px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: rgba(0,0,0,0.6);
-  backdrop-filter: blur(20px);
-  z-index: 10;
-  border-bottom: 1px solid rgba(255,255,255,0.08);
-}
+    .frame {
+      width: 96%;
+      height: 92vh;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 0 60px rgba(255,255,255,0.04);
+    }
 
-header h1 {
-  font-size: 16px;
-  letter-spacing: 2px;
-}
+    .frame iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      transform: scale(1.12);
+      transform-origin: center;
+    }
 
-/* ===== VIEWER (FULLSCREEN FEEL) ===== */
-.viewer {
-  position: absolute;
-  top: 70px;
-  width: 100%;
-  height: calc(100vh - 70px);
+    /* ===== LOADER ===== */
+    .loader {
+      position: fixed;
+      inset: 0;
+      background: #0b0b0b;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 100;
+      transition: opacity 0.6s ease;
+    }
+    .loader.hide { opacity: 0; pointer-events: none; }
 
-  display: flex;
-  justify-content: center;
-  align-items: center;
+    .spinner {
+      width: 36px;
+      height: 36px;
+      border: 2px solid rgba(255,255,255,0.1);
+      border-top: 2px solid white;
+      border-radius: 50%;
+      animation: spin 0.9s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
-  transform: translateY(110%);
-  transition: transform 1.2s ease;
-}
-
-.viewer.show {
-  transform: translateY(0);
-}
-
-/* FULLSCREEN BOOK FRAME */
-.frame {
-  width: 96%;
-  height: 96%;
-  background: #0b0b0b;
-  border-radius: 26px;
-  overflow: hidden;
-  box-shadow: 0 0 0 16px #0b0b0b;
-}
-
-/* ZOOMED BOOK (side crop only) */
-iframe {
-  width: 100%;
-  height: 100%;
-  border: none;
-
-  transform: scale(1.14);
-  transform-origin: center;
-
-  opacity: 0;
-  transition: opacity 0.6s ease;
-}
-
-iframe.loaded {
-  opacity: 1;
-}
-
-/* LOADER */
-.loader {
-  position: absolute;
-  top: 70px;
-  width: 100%;
-  height: calc(100vh - 70px);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: #0b0b0b;
-  z-index: 5;
-}
-
-.spinner {
-  width: 40px;
-  height: 40px;
-  border: 3px solid rgba(255,255,255,0.1);
-  border-top: 3px solid white;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-/* MOBILE */
-@media (max-width: 768px) {
-  .frame {
-    width: 100%;
-    height: 100%;
-    border-radius: 0;
-  }
-
-  iframe {
-    transform: scale(1.10);
-  }
-
-  .single {
-    width: 90%;
-  }
-}
-
-</style>
+    /* ===== MOBILE ===== */
+    @media (max-width: 768px) {
+      .logo { font-size: 42px; letter-spacing: 6px; }
+      .singles iframe { width: 90vw; height: 140px; }
+      .frame { width: 100%; height: 94vh; border-radius: 0; }
+      .frame iframe { transform: scale(1.08); }
+    }
+  </style>
 </head>
-
 <body>
 
-<!-- HERO -->
-<div class="hero" id="hero">
-  <div class="title">ICEMAN</div>
+  <!-- LOADER -->
+  <div class="loader" id="loader">
+    <div class="spinner"></div>
+  </div>
 
-  <div class="countdown" id="countdown">Loading...</div>
+  <div class="scroll-container" id="scrollContainer">
 
-  <!-- APPLE MUSIC EMBEDS -->
-  <div class="singles">
+    <!-- HERO SECTION -->
+    <section id="hero">
+      <div class="logo">ICEMAN</div>
+      <div class="countdown" id="countdown">Loading...</div>
 
-    <!-- What Did I Miss -->
-    <iframe class="single"
-      allow="autoplay *; encrypted-media *;"
-      frameborder="0"
-      sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-top-navigation-by-user-activation"
-      src="https://embed.music.apple.com/us/album/what-did-i-miss/placeholder">
-    </iframe>
+      <div class="singles">
+        <!-- Replace src with real Apple Music embed URLs -->
+        <iframe
+          allow="autoplay *; encrypted-media *; fullscreen *"
+          sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-top-navigation-by-user-activation"
+          src="PASTE_WHAT_DID_I_MISS_URL_HERE">
+        </iframe>
+        <iframe
+          allow="autoplay *; encrypted-media *; fullscreen *"
+          sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-top-navigation-by-user-activation"
+          src="PASTE_WHICH_ONE_URL_HERE">
+        </iframe>
+        <iframe
+          allow="autoplay *; encrypted-media *; fullscreen *"
+          sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-top-navigation-by-user-activation"
+          src="PASTE_DOG_HOUSE_URL_HERE">
+        </iframe>
+      </div>
 
-    <!-- Which One -->
-    <iframe class="single"
-      allow="autoplay *; encrypted-media *;"
-      frameborder="0"
-      sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-top-navigation-by-user-activation"
-      src="https://embed.music.apple.com/us/album/which-one/placeholder">
-    </iframe>
+      <div class="scroll-hint">↓ SCROLL</div>
+    </section>
 
-    <!-- Dog House -->
-    <iframe class="single"
-      allow="autoplay *; encrypted-media *;"
-      frameborder="0"
-      sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-top-navigation-by-user-activation"
-      src="https://embed.music.apple.com/us/album/dog-house/placeholder">
-    </iframe>
+    <!-- BOOKLET SECTION -->
+    <section id="booklet">
+      <div class="frame">
+        <iframe
+          id="flipbook"
+          src="https://heyzine.com/flip-book/cd6c7fb93b.html#page/1"
+          allowfullscreen>
+        </iframe>
+      </div>
+    </section>
 
   </div>
 
-  <div class="enter" onclick="enterSite()">ENTER</div>
-</div>
+  <script>
+    // COUNTDOWN
+    const target = new Date("2026-05-01T00:00:00").getTime();
+    const el = document.getElementById("countdown");
 
-<!-- HEADER -->
-<header>
-  <h1>ICEMAN</h1>
-</header>
+    function tick() {
+      const diff = target - Date.now();
+      if (diff <= 0) { el.textContent = "OUT NOW"; return; }
+      const d = Math.floor(diff / 86400000);
+      const h = Math.floor((diff / 3600000) % 24);
+      const m = Math.floor((diff / 60000) % 60);
+      const s = Math.floor((diff / 1000) % 60);
+      el.textContent = `${d}d ${h}h ${m}m ${s}s`;
+    }
+    setInterval(tick, 1000);
+    tick();
 
-<!-- LOADER -->
-<div class="loader" id="loader">
-  <div class="spinner"></div>
-</div>
+    // HIDE LOADER
+    const flipbook = document.getElementById("flipbook");
+    const loader = document.getElementById("loader");
+    flipbook.onload = () => loader.classList.add("hide");
+    setTimeout(() => loader.classList.add("hide"), 4000); // fallback
 
-<!-- BOOK -->
-<div class="viewer" id="viewer">
-  <div class="frame">
-    <iframe 
-      id="flipbook"
-      src="https://heyzine.com/flip-book/cd6c7fb93b.html#page/1"
-      allowfullscreen>
-    </iframe>
-  </div>
-</div>
+    // HERO BG DARKENS AS YOU SCROLL INTO BOOKLET
+    const scrollContainer = document.getElementById("scrollContainer");
+    const hero = document.getElementById("hero");
 
-<script>
-
-/* COUNTDOWN */
-const targetDate = new Date("2026-05-01T00:00:00").getTime();
-const countdownEl = document.getElementById("countdown");
-
-function updateCountdown() {
-  const now = new Date().getTime();
-  const diff = targetDate - now;
-
-  if (diff <= 0) {
-    countdownEl.innerHTML = "OUT NOW";
-    return;
-  }
-
-  const d = Math.floor(diff / (1000*60*60*24));
-  const h = Math.floor((diff / (1000*60*60)) % 24);
-  const m = Math.floor((diff / (1000*60)) % 60);
-  const s = Math.floor((diff / 1000) % 60);
-
-  countdownEl.innerHTML = `${d}d ${h}h ${m}m ${s}s`;
-}
-
-setInterval(updateCountdown, 1000);
-updateCountdown();
-
-/* ENTER ANIMATION (FIXED SMOOTH SLIDE) */
-function enterSite() {
-  document.getElementById("hero").classList.add("hidden");
-  document.getElementById("viewer").classList.add("show");
-}
-
-/* LOAD BOOK */
-const iframe = document.getElementById("flipbook");
-const loader = document.getElementById("loader");
-
-iframe.onload = () => {
-  iframe.classList.add("loaded");
-  loader.style.display = "none";
-};
-
-</script>
+    scrollContainer.addEventListener("scroll", () => {
+      const progress = scrollContainer.scrollTop / window.innerHeight;
+      const brightness = Math.max(0, 1 - progress * 1.5);
+      hero.style.opacity = brightness;
+    });
+  </script>
 
 </body>
 </html>
