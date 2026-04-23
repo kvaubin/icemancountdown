@@ -1,244 +1,169 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ICEMAN Magazine</title>
+  <meta charset="UTF-8">
+  <title>Iceman Magazine</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<style>
-*{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
-}
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
 
-body{
-  background:#050505;
-  color:#fff;
-  font-family:-apple-system,BlinkMacSystemFont,sans-serif;
-  overflow-x:hidden;
-}
+    body {
+      background: #0b0b0b;
+      color: white;
+      overflow: hidden;
+    }
 
-/* HERO */
-.hero{
-  height:100vh;
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  align-items:center;
-}
+    /* Header */
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 70px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 30px;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(20px);
+      z-index: 10;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
 
-.hero h1{
-  font-size:5rem;
-  letter-spacing:12px;
-}
+    header h1 {
+      font-size: 18px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
 
-#countdown{
-  margin-top:20px;
-  font-size:1.6rem;
-  opacity:.7;
-}
+    header a {
+      color: #aaa;
+      text-decoration: none;
+      font-size: 14px;
+      transition: 0.2s;
+    }
 
-/* MAGAZINE */
-.magazine{
-  height:100vh;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  background:#000;
-  perspective:1800px;
-}
+    header a:hover {
+      color: white;
+    }
 
-.book{
-  width:min(1200px,92vw);
-  aspect-ratio:3/2;
-  position:relative;
-  overflow:hidden;
-  background:#111;
-  box-shadow:0 40px 120px rgba(0,0,0,.8);
-  border-radius:2px;
-}
+    /* Book container */
+    .viewer {
+      position: absolute;
+      top: 70px;
+      left: 0;
+      width: 100%;
+      height: calc(100vh - 70px);
+    }
 
-/* spine */
-.book::before{
-  content:"";
-  position:absolute;
-  left:50%;
-  top:0;
-  width:3px;
-  height:100%;
-  background:rgba(255,255,255,.08);
-  transform:translateX(-50%);
-  z-index:5;
-}
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      opacity: 0;
+      transition: opacity 0.6s ease;
+    }
 
-/* pages container */
-.pages{
-  width:100%;
-  height:100%;
-  display:flex;
-  position:absolute;
-  top:0;
-  left:0;
-}
+    iframe.loaded {
+      opacity: 1;
+    }
 
-.page{
-  width:50%;
-  height:100%;
-  position:relative;
-  overflow:hidden;
-  background:#0b0b0b;
-  transition:transform .6s ease, opacity .6s ease;
-}
+    /* Loading screen */
+    .loader {
+      position: absolute;
+      top: 70px;
+      left: 0;
+      width: 100%;
+      height: calc(100vh - 70px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #0b0b0b;
+      z-index: 5;
+    }
 
-.page img{
-  width:100%;
-  height:100%;
-  object-fit:cover;
-  display:block;
-}
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid rgba(255,255,255,0.1);
+      border-top: 3px solid white;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
 
-/* subtle shadows */
-.page.left{
-  box-shadow:inset -30px 0 60px rgba(0,0,0,.6);
-}
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
 
-.page.right{
-  box-shadow:inset 30px 0 60px rgba(0,0,0,.6);
-}
+    /* Optional logo cover (hack) */
+    .logo-cover {
+      position: absolute;
+      bottom: 12px;
+      right: 12px;
+      width: 110px;
+      height: 40px;
+      background: #0b0b0b;
+      pointer-events: none;
+      z-index: 6;
+    }
 
-/* flip animation layer */
-.flip{
-  position:absolute;
-  width:50%;
-  height:100%;
-  top:0;
-  right:0;
-  transform-origin:left;
-  z-index:10;
-  background:#111;
-  backface-visibility:hidden;
-  transition:transform .7s cubic-bezier(.2,.8,.2,1);
-}
+    /* Mobile tweaks */
+    @media (max-width: 768px) {
+      header {
+        height: 60px;
+        padding: 0 20px;
+      }
 
-.flip img{
-  width:100%;
-  height:100%;
-  object-fit:cover;
-}
+      .viewer,
+      .loader {
+        top: 60px;
+        height: calc(100vh - 60px);
+      }
+    }
 
-.flip.turn{
-  transform:rotateY(-180deg);
-}
-
-/* hint */
-.hint{
-  position:absolute;
-  bottom:20px;
-  width:100%;
-  text-align:center;
-  font-size:12px;
-  opacity:.4;
-}
-
-</style>
+  </style>
 </head>
+
 <body>
 
-<section class="hero">
-  <h1>ICEMAN</h1>
-  <div id="countdown"></div>
-</section>
+  <!-- Header -->
+  <header>
+    <h1>ICEMAN</h1>
+    <a href="#">Issue 01</a>
+  </header>
 
-<section class="magazine">
-  <div class="book" id="book"></div>
-</section>
+  <!-- Loader -->
+  <div class="loader" id="loader">
+    <div class="spinner"></div>
+  </div>
 
-<script>
+  <!-- Flipbook -->
+  <div class="viewer">
+    <iframe 
+      id="flipbook"
+      src="https://heyzine.com/flip-book/46b787281d.html"
+      allowfullscreen>
+    </iframe>
 
-/* COUNTDOWN */
-const releaseDate = new Date("2026-07-01T00:00:00");
+    <!-- optional logo hide hack -->
+    <div class="logo-cover"></div>
+  </div>
 
-function updateCountdown(){
-  const now=new Date();
-  const diff=releaseDate-now;
+  <script>
+    const iframe = document.getElementById("flipbook");
+    const loader = document.getElementById("loader");
 
-  if(diff<=0){
-    document.getElementById("countdown").innerText="OUT NOW";
-    return;
-  }
-
-  const d=Math.floor(diff/86400000);
-  const h=Math.floor(diff/3600000%24);
-  const m=Math.floor(diff/60000%60);
-  const s=Math.floor(diff/1000%60);
-
-  document.getElementById("countdown").innerText=
-    `${d}d ${h}h ${m}m ${s}s`;
-}
-
-setInterval(updateCountdown,1000);
-updateCountdown();
-
-/* CLEAN MAGAZINE DATA */
-const pages=[
-  {left:"img1.jpeg",right:"img2.jpeg"},
-  {left:"img3.jpeg",right:"img4.jpeg"},
-  {left:"img5.jpeg",right:"img6.jpeg"}
-];
-
-let index=0;
-const book=document.getElementById("book");
-
-function render(){
-  const p=pages[index];
-
-  book.innerHTML=`
-    <div class="pages">
-      <div class="page left"><img src="${p.left}"></div>
-      <div class="page right"><img src="${p.right}"></div>
-    </div>
-    <div class="flip" id="flip"><img src="${p.right}"></div>
-  `;
-}
-
-function next(){
-  const flip=document.getElementById("flip");
-  if(index>=pages.length-1) return;
-
-  flip.classList.add("turn");
-
-  setTimeout(()=>{
-    index++;
-    render();
-  },600);
-}
-
-function prev(){
-  if(index<=0) return;
-  index--;
-  render();
-}
-
-/* swipe */
-let startX=0;
-
-document.addEventListener("touchstart",e=>startX=e.touches[0].clientX);
-
-document.addEventListener("touchend",e=>{
-  let dx=startX-e.changedTouches[0].clientX;
-  if(dx>50) next();
-  if(dx<-50) prev();
-});
-
-document.addEventListener("keydown",e=>{
-  if(e.key==="ArrowRight") next();
-  if(e.key==="ArrowLeft") prev();
-});
-
-render();
-
-</script>
+    iframe.onload = () => {
+      iframe.classList.add("loaded");
+      loader.style.display = "none";
+    };
+  </script>
 
 </body>
 </html>
