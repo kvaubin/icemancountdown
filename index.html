@@ -6,135 +6,125 @@
 <title>ICEMAN Magazine</title>
 
 <style>
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
 }
 
-body {
-  background: #050505;
-  color: white;
-  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-  overflow-x: hidden;
+body{
+  background:#050505;
+  color:#fff;
+  font-family:-apple-system,BlinkMacSystemFont,sans-serif;
+  overflow-x:hidden;
 }
 
 /* HERO */
-.hero {
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
+.hero{
+  height:100vh;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
 }
 
-.hero h1 {
-  font-size: 5rem;
-  letter-spacing: 12px;
+.hero h1{
+  font-size:5rem;
+  letter-spacing:12px;
 }
 
-#countdown {
-  margin-top: 20px;
-  font-size: 1.8rem;
-  opacity: 0.7;
+#countdown{
+  margin-top:20px;
+  font-size:1.8rem;
+  opacity:.7;
 }
 
 /* SCENE */
-.magazine {
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  perspective: 3000px;
-  background: #000;
+.magazine{
+  height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  perspective:2500px;
+  background:#000;
 }
 
 /* BOOK */
-.book {
-  width: min(1200px, 92vw);
-  aspect-ratio: 3 / 2;
-  position: relative;
-  transform-style: preserve-3d;
+.book{
+  width:min(1200px,92vw);
+  aspect-ratio:3/2;
+  position:relative;
+  transform-style:preserve-3d;
 }
 
-/* spine */
-.book::before {
-  content: "";
-  position: absolute;
-  left: 50%;
-  top: 0;
-  width: 4px;
-  height: 100%;
-  background: rgba(255,255,255,0.08);
-  transform: translateX(-50%);
-  z-index: 10;
+.book::before{
+  content:"";
+  position:absolute;
+  left:50%;
+  top:0;
+  width:4px;
+  height:100%;
+  background:rgba(255,255,255,.08);
+  transform:translateX(-50%);
+  z-index:10;
 }
 
-/* PAGE BASE */
-.page {
-  position: absolute;
-  width: 50%;
-  height: 100%;
-  top: 0;
-  overflow: hidden;
-  transform-origin: left;
-  background: #111;
-  backface-visibility: hidden;
-  box-shadow: inset 0 0 80px rgba(0,0,0,0.6);
+/* STATIC BASE PAGES */
+.page{
+  position:absolute;
+  width:50%;
+  height:100%;
+  top:0;
+  overflow:hidden;
+  background:#111;
+  backface-visibility:hidden;
 }
 
-.page img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+.page.left{left:0;}
+.page.right{right:0;}
+
+.page img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
 }
 
-/* LEFT PAGE */
-.page.left {
-  left: 0;
+/* CURLED PAGE (FLIP SHEET) */
+.curl{
+  position:absolute;
+  width:50%;
+  height:100%;
+  right:0;
+  top:0;
+  transform-origin:left center;
+  transform-style:preserve-3d;
+  z-index:100;
+  cursor:grab;
 }
 
-/* RIGHT PAGE */
-.page.right {
-  right: 0;
-  transform-origin: left;
+.curl img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  backface-visibility:hidden;
 }
 
-/* FLIP ANIMATION */
-.page.flipping {
-  animation: flip 0.9s ease forwards;
-  z-index: 100;
+/* front shadow (page bend) */
+.curl::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(to left, rgba(0,0,0,.55), transparent);
+  pointer-events:none;
 }
 
-@keyframes flip {
-  0% {
-    transform: rotateY(0deg);
-  }
-  50% {
-    transform: rotateY(-90deg);
-  }
-  100% {
-    transform: rotateY(-180deg);
-  }
-}
-
-/* subtle lighting */
-.book::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(circle at center, transparent 40%, rgba(0,0,0,0.6));
-  pointer-events: none;
-}
-
-/* nav hint */
-.hint {
-  position: absolute;
-  bottom: 20px;
-  width: 100%;
-  text-align: center;
-  font-size: 12px;
-  opacity: 0.5;
+/* spine glow */
+.book::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:radial-gradient(circle at center, transparent 40%, rgba(0,0,0,.65));
+  pointer-events:none;
 }
 
 </style>
@@ -153,89 +143,104 @@ body {
 <script>
 
 /* COUNTDOWN */
-const releaseDate = new Date("2026-07-01T00:00:00");
+const releaseDate=new Date("2026-07-01T00:00:00");
 
-function updateCountdown() {
-  const now = new Date();
-  const diff = releaseDate - now;
-
-  if (diff <= 0) {
-    document.getElementById("countdown").innerText = "OUT NOW";
+function updateCountdown(){
+  const now=new Date();
+  const diff=releaseDate-now;
+  if(diff<=0){
+    document.getElementById("countdown").innerText="OUT NOW";
     return;
   }
-
-  const d = Math.floor(diff / (1000*60*60*24));
-  const h = Math.floor((diff / (1000*60*60)) % 24);
-  const m = Math.floor((diff / (1000*60)) % 60);
-  const s = Math.floor((diff / 1000) % 60);
-
-  document.getElementById("countdown").innerText =
-    `${d}d ${h}h ${m}m ${s}s`;
+  const d=Math.floor(diff/86400000);
+  const h=Math.floor(diff/3600000%24);
+  const m=Math.floor(diff/60000%60);
+  const s=Math.floor(diff/1000%60);
+  document.getElementById("countdown").innerText=`${d}d ${h}h ${m}m ${s}s`;
 }
-
-setInterval(updateCountdown, 1000);
+setInterval(updateCountdown,1000);
 updateCountdown();
 
 /* PAGES */
-const pages = [
-  { left: "img1.jpeg", right: "img2.jpeg" },
-  { left: "img3.jpeg", right: "img4.jpeg" },
-  { left: "img5.jpeg", right: "img6.jpeg" }
+const pages=[
+  {left:"img1.jpeg",right:"img2.jpeg"},
+  {left:"img3.jpeg",right:"img4.jpeg"},
+  {left:"img5.jpeg",right:"img6.jpeg"}
 ];
 
-let index = 0;
-const book = document.getElementById("book");
+let index=0;
+const book=document.getElementById("book");
 
-function render() {
-  const p = pages[index];
-
-  book.innerHTML = `
-    <div class="page left">
-      <img src="${p.left}" />
-    </div>
-    <div class="page right">
-      <img src="${p.right}" />
-    </div>
+function render(){
+  const p=pages[index];
+  book.innerHTML=`
+    <div class="page left"><img src="${p.left}"></div>
+    <div class="page right"><img src="${p.right}"></div>
+    <div class="curl" id="curl"><img src="${p.right}"></div>
   `;
+  bindCurl();
 }
 
-function flipNext() {
-  const right = document.querySelector(".page.right");
+/* REAL CURL DRAG SYSTEM */
+function bindCurl(){
+  const curl=document.getElementById("curl");
+  let dragging=false;
 
-  if (index < pages.length - 1) {
-    right.classList.add("flipping");
+  let startX=0;
+  let current=0;
 
-    setTimeout(() => {
-      index++;
-      render();
-    }, 600);
+  curl.addEventListener("mousedown",e=>{
+    dragging=true;
+    startX=e.clientX;
+  });
+
+  window.addEventListener("mousemove",e=>{
+    if(!dragging) return;
+
+    const dx=e.clientX-startX;
+    current=Math.min(Math.max(dx,0),600);
+
+    const rot=(-current/600)*180;
+    curl.style.transform=`translateX(${current}px) rotateY(${rot}deg)`;
+  });
+
+  window.addEventListener("mouseup",()=>{
+    if(!dragging) return;
+    dragging=false;
+
+    if(current>250){
+      nextPage();
+    }else{
+      curl.style.transition="transform .4s ease";
+      curl.style.transform="translateX(0) rotateY(0deg)";
+      setTimeout(()=>curl.style.transition="",400);
+    }
+
+    current=0;
+  });
+}
+
+function nextPage(){
+  if(index<pages.length-1){
+    index++;
+    render();
   }
 }
 
-function flipPrev() {
-  if (index > 0) {
+function prevPage(){
+  if(index>0){
     index--;
     render();
   }
 }
 
-/* controls */
-let startX = 0;
-
-document.addEventListener("touchstart", e => {
-  startX = e.touches[0].clientX;
-});
-
-document.addEventListener("touchend", e => {
-  let diff = startX - e.changedTouches[0].clientX;
-
-  if (diff > 50) flipNext();
-  if (diff < -50) flipPrev();
-});
-
-document.addEventListener("keydown", e => {
-  if (e.key === "ArrowRight") flipNext();
-  if (e.key === "ArrowLeft") flipPrev();
+/* touch swipe */
+let startX=0;
+document.addEventListener("touchstart",e=>startX=e.touches[0].clientX);
+document.addEventListener("touchend",e=>{
+  let dx=startX-e.changedTouches[0].clientX;
+  if(dx>50) nextPage();
+  if(dx<-50) prevPage();
 });
 
 render();
