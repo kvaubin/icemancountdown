@@ -13,136 +13,196 @@
 }
 
 body {
-  background: black;
-  color: white;
+  background: #050505;
+  height: 100vh;
   overflow: hidden;
-  font-family: Arial, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: sans-serif;
 }
 
-/* ===== FULLSCREEN BOOK ===== */
-.book {
-  width: 100vw;
-  height: 100vh;
-  display: flex;
-  overflow: hidden;
+/* ===== MAGAZINE CONTAINER ===== */
+.magazine {
+  width: 90vw;
+  height: 90vh;
+  perspective: 2500px;
   position: relative;
 }
 
-/* track of pages */
-.track {
-  display: flex;
-  height: 100%;
-  transition: transform 0.6s ease;
+/* subtle paper shadow */
+.magazine::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, rgba(255,255,255,0.05), transparent 70%);
+  pointer-events: none;
 }
 
-/* ===== PAGE BASE ===== */
+/* ===== OPEN BOOK ===== */
+.book {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+}
+
+/* spine shadow */
+.spine {
+  position: absolute;
+  width: 20px;
+  height: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(to right, transparent, rgba(0,0,0,0.8), transparent);
+  z-index: 10;
+}
+
+/* ===== PAGE ===== */
 .page {
-  width: 100vw;
-  height: 100vh;
-  flex-shrink: 0;
+  width: 50%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  overflow: hidden;
+  background: #000;
+  backface-visibility: hidden;
+  transition: transform 0.8s cubic-bezier(.4,.2,.2,1);
+  box-shadow: 0 0 40px rgba(0,0,0,0.6);
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
-/* vertical image = single page */
-.page.single img {
-  max-height: 92vh;
-  max-width: 92vw;
+/* left page */
+.left {
+  left: 0;
+  border-right: 1px solid rgba(255,255,255,0.05);
+}
+
+/* right page */
+.right {
+  right: 0;
+  border-left: 1px solid rgba(255,255,255,0.05);
+}
+
+/* images */
+.page img {
+  max-width: 100%;
+  max-height: 100%;
   object-fit: contain;
-}
-
-/* horizontal = full spread (2 pages feel) */
-.page.spread {
-  width: 200vw;
-}
-
-.page.spread img {
-  width: 90vw;
-  max-height: 92vh;
-  object-fit: contain;
-}
-
-/* subtle fade edges like real paper */
-.book::before,
-.book::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  width: 80px;
-  height: 100%;
-  z-index: 2;
+  user-select: none;
   pointer-events: none;
 }
 
-.book::before {
-  left: 0;
-  background: linear-gradient(to right, black, transparent);
+/* ===== FLIP STATES ===== */
+.flip-right {
+  transform: rotateY(-180deg);
+  transform-origin: right;
 }
 
-.book::after {
-  right: 0;
-  background: linear-gradient(to left, black, transparent);
+.flip-left {
+  transform: rotateY(180deg);
+  transform-origin: left;
 }
 
+/* page depth illusion */
+.page::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  box-shadow: inset 0 0 80px rgba(0,0,0,0.4);
+  pointer-events: none;
+}
+
+/* navigation hint */
+.hint {
+  position: absolute;
+  bottom: 20px;
+  width: 100%;
+  text-align: center;
+  color: white;
+  opacity: 0.4;
+  font-size: 12px;
+}
 </style>
 </head>
 
 <body>
 
-<div class="book" id="book">
-  <div class="track" id="track">
+<div class="magazine">
+  <div class="book" id="book">
 
-    <!-- PAGE 1 (vertical = 1 page) -->
-    <div class="page single">
+    <div class="spine"></div>
+
+    <div class="page left" id="leftPage">
       <img src="img1.jpeg">
     </div>
 
-    <!-- PAGE 2 (horizontal = spread) -->
-    <div class="page spread">
+    <div class="page right" id="rightPage">
       <img src="img2.jpeg">
     </div>
 
-    <!-- PAGE 3 (vertical = 1 page) -->
-    <div class="page single">
-      <img src="img3.jpeg">
-    </div>
-
   </div>
+
+  <div class="hint">Swipe or drag → turn pages</div>
 </div>
 
 <script>
-let index = 0;
-const track = document.getElementById("track");
-const pages = document.querySelectorAll(".page");
+const pages = [
+  "img1.jpeg",
+  "img2.jpeg",
+  "img3.jpeg"
+];
 
+let index = 0;
+
+const left = document.getElementById("leftPage");
+const right = document.getElementById("rightPage");
+const book = document.getElementById("book");
+
+/* ===== RENDER SPREAD ===== */
+function render() {
+  left.innerHTML = `<img src="${pages[index] || ''}">`;
+  right.innerHTML = `<img src="${pages[index+1] || ''}">`;
+}
+render();
+
+/* ===== TURN EFFECT ===== */
+function turn(direction) {
+  book.style.transform = direction === "next"
+    ? "rotateY(-8deg)"
+    : "rotateY(8deg)";
+
+  setTimeout(() => {
+    book.style.transform = "rotateY(0deg)";
+
+    if (direction === "next") index += 2;
+    if (direction === "prev") index -= 2;
+
+    index = Math.max(0, Math.min(index, pages.length - 2));
+    render();
+  }, 250);
+}
+
+/* ===== DRAG / SWIPE ===== */
 let startX = 0;
 
-/* ===== SWIPE ===== */
 document.addEventListener("touchstart", e => {
   startX = e.touches[0].clientX;
 });
 
 document.addEventListener("touchend", e => {
-  let endX = e.changedTouches[0].clientX;
-  let diff = startX - endX;
+  let diff = startX - e.changedTouches[0].clientX;
 
-  if (diff > 50) index++;      // swipe left → next page
-  if (diff < -50) index--;     // swipe right → previous page
-
-  index = Math.max(0, Math.min(index, pages.length - 1));
-
-  track.style.transform = `translateX(-${index * 100}vw)`;
+  if (diff > 60) turn("next");
+  if (diff < -60) turn("prev");
 });
 
-/* ===== DESKTOP SUPPORT ===== */
+/* desktop */
 document.addEventListener("keydown", e => {
-  if (e.key === "ArrowRight") index++;
-  if (e.key === "ArrowLeft") index--;
-
-  index = Math.max(0, Math.min(index, pages.length - 1));
-
-  track.style.transform = `translateX(-${index * 100}vw)`;
+  if (e.key === "ArrowRight") turn("next");
+  if (e.key === "ArrowLeft") turn("prev");
 });
 </script>
 
