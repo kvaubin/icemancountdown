@@ -3,9 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ICEMAN</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&display=swap" rel="stylesheet">
+<title>ICEMAN MAGAZINE</title>
 
 <style>
 * {
@@ -17,103 +15,72 @@
 body {
   background: black;
   color: white;
-  font-family: 'Inter', sans-serif;
-  overflow-x: hidden;
+  overflow: hidden;
+  font-family: Arial, sans-serif;
 }
 
-/* ================= HERO ================= */
-.hero {
+/* ===== FULLSCREEN BOOK ===== */
+.book {
+  width: 100vw;
   height: 100vh;
   display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-  text-align: center;
+  overflow: hidden;
   position: relative;
 }
 
-.hero h1 {
-  font-size: 5rem;
-  letter-spacing: 12px;
-}
-
-.subtitle {
-  opacity: 0.5;
-  letter-spacing: 4px;
-  margin-top: 10px;
-}
-
-#countdown {
-  margin-top: 20px;
-  font-size: 2rem;
-  letter-spacing: 3px;
-}
-
-.scroll-hint {
-  position: absolute;
-  bottom: 20px;
-  opacity: 0.4;
-  font-size: 0.8rem;
-}
-
-/* ================= MAGAZINE ================= */
-.magazine {
-  height: 100vh;
+/* track of pages */
+.track {
   display: flex;
-  overflow-x: auto;
-  overflow-y: hidden;
-  scroll-snap-type: x mandatory;
-  background: #000;
+  height: 100%;
+  transition: transform 0.6s ease;
 }
 
-.magazine::-webkit-scrollbar {
-  display: none;
-}
-
+/* ===== PAGE BASE ===== */
 .page {
-  min-width: 100vw;
+  width: 100vw;
   height: 100vh;
-  scroll-snap-align: center;
+  flex-shrink: 0;
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
-/* vertical image */
-.page img.vertical {
-  max-height: 90vh;
-  max-width: 90vw;
+/* vertical image = single page */
+.page.single img {
+  max-height: 92vh;
+  max-width: 92vw;
   object-fit: contain;
 }
 
-/* horizontal spread (2 pages feel) */
-.page.double {
-  min-width: 200vw;
+/* horizontal = full spread (2 pages feel) */
+.page.spread {
+  width: 200vw;
 }
 
-.page img.horizontal {
-  width: 80vw;
-  max-height: 90vh;
+.page.spread img {
+  width: 90vw;
+  max-height: 92vh;
   object-fit: contain;
 }
 
-/* fade edges */
-.magazine::before,
-.magazine::after {
+/* subtle fade edges like real paper */
+.book::before,
+.book::after {
   content: "";
   position: absolute;
   top: 0;
   width: 80px;
   height: 100%;
   z-index: 2;
+  pointer-events: none;
 }
 
-.magazine::before {
+.book::before {
   left: 0;
   background: linear-gradient(to right, black, transparent);
 }
 
-.magazine::after {
+.book::after {
   right: 0;
   background: linear-gradient(to left, black, transparent);
 }
@@ -123,55 +90,60 @@ body {
 
 <body>
 
-<!-- HERO -->
-<section class="hero">
-  <h1>ICEMAN</h1>
-  <div class="subtitle">A NEW ERA</div>
-  <div id="countdown"></div>
-  <div class="scroll-hint">SCROLL ↓</div>
-</section>
+<div class="book" id="book">
+  <div class="track" id="track">
 
-<!-- MAGAZINE -->
-<section class="magazine">
+    <!-- PAGE 1 (vertical = 1 page) -->
+    <div class="page single">
+      <img src="img1.jpeg">
+    </div>
 
-  <div class="page">
-    <img src="img1.jpeg" class="vertical">
+    <!-- PAGE 2 (horizontal = spread) -->
+    <div class="page spread">
+      <img src="img2.jpeg">
+    </div>
+
+    <!-- PAGE 3 (vertical = 1 page) -->
+    <div class="page single">
+      <img src="img3.jpeg">
+    </div>
+
   </div>
-
-  <div class="page double">
-    <img src="img2.jpeg" class="horizontal">
-  </div>
-
-  <div class="page">
-    <img src="img3.jpeg" class="vertical">
-  </div>
-
-</section>
+</div>
 
 <script>
-// ================= COUNTDOWN =================
-const releaseDate = new Date("2026-07-01T00:00:00");
+let index = 0;
+const track = document.getElementById("track");
+const pages = document.querySelectorAll(".page");
 
-function updateCountdown() {
-  const now = new Date();
-  const diff = releaseDate - now;
+let startX = 0;
 
-  if (diff <= 0) {
-    document.getElementById("countdown").innerText = "OUT NOW";
-    return;
-  }
+/* ===== SWIPE ===== */
+document.addEventListener("touchstart", e => {
+  startX = e.touches[0].clientX;
+});
 
-  const d = Math.floor(diff / (1000 * 60 * 60 * 24));
-  const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
-  const m = Math.floor((diff / (1000 * 60)) % 60);
-  const s = Math.floor((diff / 1000) % 60);
+document.addEventListener("touchend", e => {
+  let endX = e.changedTouches[0].clientX;
+  let diff = startX - endX;
 
-  document.getElementById("countdown").innerText =
-    `${d} : ${h} : ${m} : ${s}`;
-}
+  if (diff > 50) index++;      // swipe left → next page
+  if (diff < -50) index--;     // swipe right → previous page
 
-setInterval(updateCountdown, 1000);
-updateCountdown();
+  index = Math.max(0, Math.min(index, pages.length - 1));
+
+  track.style.transform = `translateX(-${index * 100}vw)`;
+});
+
+/* ===== DESKTOP SUPPORT ===== */
+document.addEventListener("keydown", e => {
+  if (e.key === "ArrowRight") index++;
+  if (e.key === "ArrowLeft") index--;
+
+  index = Math.max(0, Math.min(index, pages.length - 1));
+
+  track.style.transform = `translateX(-${index * 100}vw)`;
+});
 </script>
 
 </body>
