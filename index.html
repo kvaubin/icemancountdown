@@ -13,65 +13,46 @@
 }
 
 body {
-  background: #050505;
+  background: #0a0a0a;
   height: 100vh;
   overflow: hidden;
   display: flex;
   justify-content: center;
   align-items: center;
-  font-family: sans-serif;
 }
 
-/* ===== MAGAZINE CONTAINER ===== */
-.magazine {
+/* ===== MAGAZINE FRAME ===== */
+.mag {
   width: 90vw;
   height: 90vh;
-  perspective: 2500px;
+  perspective: 3000px;
   position: relative;
 }
 
-/* subtle paper shadow */
-.magazine::before {
+/* spine */
+.mag::before {
   content: "";
   position: absolute;
-  inset: 0;
-  background: radial-gradient(circle at center, rgba(255,255,255,0.05), transparent 70%);
-  pointer-events: none;
-}
-
-/* ===== OPEN BOOK ===== */
-.book {
-  width: 100%;
-  height: 100%;
-  position: relative;
-  transform-style: preserve-3d;
-}
-
-/* spine shadow */
-.spine {
-  position: absolute;
-  width: 20px;
-  height: 100%;
   left: 50%;
+  top: 0;
+  width: 2px;
+  height: 100%;
+  background: rgba(255,255,255,0.08);
   transform: translateX(-50%);
-  background: linear-gradient(to right, transparent, rgba(0,0,0,0.8), transparent);
   z-index: 10;
 }
 
-/* ===== PAGE ===== */
+/* ===== STACKED PAGES ===== */
 .page {
+  position: absolute;
   width: 50%;
   height: 100%;
-  position: absolute;
   top: 0;
+  transform-style: preserve-3d;
+  transition: transform 1s cubic-bezier(.2,.8,.2,1);
+  box-shadow: 0 30px 80px rgba(0,0,0,0.6);
+  background: black;
   overflow: hidden;
-  background: #000;
-  backface-visibility: hidden;
-  transition: transform 0.8s cubic-bezier(.4,.2,.2,1);
-  box-shadow: 0 0 40px rgba(0,0,0,0.6);
-  display: flex;
-  justify-content: center;
-  align-items: center;
 }
 
 /* left page */
@@ -88,104 +69,107 @@ body {
 
 /* images */
 .page img {
-  max-width: 100%;
-  max-height: 100%;
+  width: 100%;
+  height: 100%;
   object-fit: contain;
   user-select: none;
   pointer-events: none;
 }
 
-/* ===== FLIP STATES ===== */
-.flip-right {
-  transform: rotateY(-180deg);
+/* ===== PAGE FLIP LAYERS ===== */
+.flip-next-left {
   transform-origin: right;
+  transform: rotateY(-180deg);
 }
 
-.flip-left {
-  transform: rotateY(180deg);
+.flip-next-right {
   transform-origin: left;
+  transform: rotateY(180deg);
 }
 
-/* page depth illusion */
+/* paper depth illusion */
 .page::after {
   content: "";
   position: absolute;
   inset: 0;
-  box-shadow: inset 0 0 80px rgba(0,0,0,0.4);
+  background: linear-gradient(to right, rgba(0,0,0,0.4), transparent 40%, rgba(0,0,0,0.4));
   pointer-events: none;
 }
 
-/* navigation hint */
-.hint {
+/* subtle vignette */
+.mag::after {
+  content: "";
   position: absolute;
-  bottom: 20px;
-  width: 100%;
-  text-align: center;
-  color: white;
-  opacity: 0.4;
-  font-size: 12px;
+  inset: 0;
+  background: radial-gradient(circle, transparent 40%, rgba(0,0,0,0.8));
+  pointer-events: none;
 }
 </style>
 </head>
 
 <body>
 
-<div class="magazine">
-  <div class="book" id="book">
+<div class="mag" id="mag">
 
-    <div class="spine"></div>
-
-    <div class="page left" id="leftPage">
-      <img src="img1.jpeg">
-    </div>
-
-    <div class="page right" id="rightPage">
-      <img src="img2.jpeg">
-    </div>
-
+  <div class="page left" id="left">
+    <img src="img1.jpeg">
   </div>
 
-  <div class="hint">Swipe or drag → turn pages</div>
+  <div class="page right" id="right">
+    <img src="img2.jpeg">
+  </div>
+
 </div>
 
 <script>
 const pages = [
   "img1.jpeg",
   "img2.jpeg",
-  "img3.jpeg"
+  "img3.jpeg",
+  "img4.jpeg"
 ];
 
 let index = 0;
 
-const left = document.getElementById("leftPage");
-const right = document.getElementById("rightPage");
-const book = document.getElementById("book");
+const left = document.getElementById("left");
+const right = document.getElementById("right");
+const mag = document.getElementById("mag");
 
-/* ===== RENDER SPREAD ===== */
+/* ===== RENDER ===== */
 function render() {
   left.innerHTML = `<img src="${pages[index] || ''}">`;
   right.innerHTML = `<img src="${pages[index+1] || ''}">`;
 }
 render();
 
-/* ===== TURN EFFECT ===== */
-function turn(direction) {
-  book.style.transform = direction === "next"
-    ? "rotateY(-8deg)"
-    : "rotateY(8deg)";
+/* ===== REAL TURN ANIMATION ===== */
+function turn(next = true) {
+
+  const l = left;
+  const r = right;
+
+  if (next) {
+    l.style.transform = "rotateY(-180deg)";
+    r.style.transform = "rotateY(180deg)";
+  } else {
+    l.style.transform = "rotateY(0deg)";
+    r.style.transform = "rotateY(0deg)";
+  }
 
   setTimeout(() => {
-    book.style.transform = "rotateY(0deg)";
-
-    if (direction === "next") index += 2;
-    if (direction === "prev") index -= 2;
+    if (next) index += 2;
+    else index -= 2;
 
     index = Math.max(0, Math.min(index, pages.length - 2));
+
+    l.style.transform = "none";
+    r.style.transform = "none";
+
     render();
-  }, 250);
+  }, 600);
 }
 
-/* ===== DRAG / SWIPE ===== */
+/* ===== SWIPE ===== */
 let startX = 0;
 
 document.addEventListener("touchstart", e => {
@@ -195,14 +179,14 @@ document.addEventListener("touchstart", e => {
 document.addEventListener("touchend", e => {
   let diff = startX - e.changedTouches[0].clientX;
 
-  if (diff > 60) turn("next");
-  if (diff < -60) turn("prev");
+  if (diff > 50) turn(true);
+  if (diff < -50) turn(false);
 });
 
 /* desktop */
 document.addEventListener("keydown", e => {
-  if (e.key === "ArrowRight") turn("next");
-  if (e.key === "ArrowLeft") turn("prev");
+  if (e.key === "ArrowRight") turn(true);
+  if (e.key === "ArrowLeft") turn(false);
 });
 </script>
 
