@@ -35,13 +35,13 @@ body {
 }
 
 .hero.hidden {
-  transform: translateY(-100%);
+  transform: translateY(-110%);
   opacity: 0;
   pointer-events: none;
 }
 
 .title {
-  font-size: 52px;
+  font-size: 54px;
   font-weight: 700;
   letter-spacing: 6px;
   margin-bottom: 18px;
@@ -50,33 +50,28 @@ body {
 .countdown {
   font-size: 18px;
   color: #aaa;
-  margin-bottom: 40px;
+  margin-bottom: 35px;
 }
 
+/* ===== SONGS (FIXED FOR APPLE MUSIC) ===== */
 .singles {
   display: flex;
-  gap: 18px;
+  gap: 16px;
   margin-bottom: 40px;
+  flex-wrap: wrap;
+  justify-content: center;
+  max-width: 900px;
 }
 
 .single {
-  width: 120px;
-  height: 120px;
-  background: #1a1a1a;
+  width: 260px;
+  height: 150px;
   border-radius: 14px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  color: #777;
-  transition: 0.3s;
+  overflow: hidden;
+  background: #111;
 }
 
-.single:hover {
-  transform: scale(1.05);
-  background: #222;
-}
-
+/* ENTER */
 .enter {
   padding: 12px 34px;
   border: 1px solid rgba(255,255,255,0.25);
@@ -110,7 +105,7 @@ header h1 {
   letter-spacing: 2px;
 }
 
-/* ===== BOOK AREA ===== */
+/* ===== VIEWER (FULLSCREEN FEEL) ===== */
 .viewer {
   position: absolute;
   top: 70px;
@@ -121,34 +116,31 @@ header h1 {
   justify-content: center;
   align-items: center;
 
-  /* start hidden under hero */
-  transform: translateY(100%);
-  transition: transform 1s ease;
+  transform: translateY(110%);
+  transition: transform 1.2s ease;
 }
 
 .viewer.show {
   transform: translateY(0);
 }
 
-/* FRAME (NO TOP/BOTTOM CROP EFFECT) */
+/* FULLSCREEN BOOK FRAME */
 .frame {
-  width: 92%;
-  height: 92%;
+  width: 96%;
+  height: 96%;
   background: #0b0b0b;
-  border-radius: 24px;
+  border-radius: 26px;
   overflow: hidden;
-  position: relative;
-  box-shadow: 0 0 0 14px #0b0b0b;
+  box-shadow: 0 0 0 16px #0b0b0b;
 }
 
-/* ONLY SIDE CROPPING + ZOOM */
+/* ZOOMED BOOK (side crop only) */
 iframe {
   width: 100%;
   height: 100%;
   border: none;
 
-  /* zoom in */
-  transform: scale(1.12);
+  transform: scale(1.14);
   transform-origin: center;
 
   opacity: 0;
@@ -194,7 +186,11 @@ iframe.loaded {
   }
 
   iframe {
-    transform: scale(1.08);
+    transform: scale(1.10);
+  }
+
+  .single {
+    width: 90%;
   }
 }
 
@@ -209,10 +205,33 @@ iframe.loaded {
 
   <div class="countdown" id="countdown">Loading...</div>
 
+  <!-- APPLE MUSIC EMBEDS -->
   <div class="singles">
-    <div class="single">Single 1</div>
-    <div class="single">Single 2</div>
-    <div class="single">Single 3</div>
+
+    <!-- What Did I Miss -->
+    <iframe class="single"
+      allow="autoplay *; encrypted-media *;"
+      frameborder="0"
+      sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-top-navigation-by-user-activation"
+      src="https://embed.music.apple.com/us/album/what-did-i-miss/placeholder">
+    </iframe>
+
+    <!-- Which One -->
+    <iframe class="single"
+      allow="autoplay *; encrypted-media *;"
+      frameborder="0"
+      sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-top-navigation-by-user-activation"
+      src="https://embed.music.apple.com/us/album/which-one/placeholder">
+    </iframe>
+
+    <!-- Dog House -->
+    <iframe class="single"
+      allow="autoplay *; encrypted-media *;"
+      frameborder="0"
+      sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-top-navigation-by-user-activation"
+      src="https://embed.music.apple.com/us/album/dog-house/placeholder">
+    </iframe>
+
   </div>
 
   <div class="enter" onclick="enterSite()">ENTER</div>
@@ -265,13 +284,13 @@ function updateCountdown() {
 setInterval(updateCountdown, 1000);
 updateCountdown();
 
-/* ENTER ANIMATION */
+/* ENTER ANIMATION (FIXED SMOOTH SLIDE) */
 function enterSite() {
   document.getElementById("hero").classList.add("hidden");
   document.getElementById("viewer").classList.add("show");
 }
 
-/* LOAD */
+/* LOAD BOOK */
 const iframe = document.getElementById("flipbook");
 const loader = document.getElementById("loader");
 
