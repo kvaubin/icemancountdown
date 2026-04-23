@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ICEMAN MAGAZINE</title>
+<title>ICEMAN</title>
 
 <style>
 * {
@@ -13,24 +13,66 @@
 }
 
 body {
-  background: #0a0a0a;
+  background: #050505;
+  color: white;
+  font-family: Arial, sans-serif;
+  overflow-x: hidden;
+}
+
+/* ================= HERO ================= */
+.hero {
   height: 100vh;
-  overflow: hidden;
   display: flex;
   justify-content: center;
   align-items: center;
-}
-
-/* ===== MAGAZINE FRAME ===== */
-.mag {
-  width: 90vw;
-  height: 90vh;
-  perspective: 3000px;
+  flex-direction: column;
+  text-align: center;
   position: relative;
 }
 
+.hero h1 {
+  font-size: 5rem;
+  letter-spacing: 12px;
+}
+
+.subtitle {
+  opacity: 0.5;
+  letter-spacing: 4px;
+  margin-top: 10px;
+}
+
+#countdown {
+  margin-top: 20px;
+  font-size: 2rem;
+}
+
+.scroll {
+  position: absolute;
+  bottom: 20px;
+  opacity: 0.4;
+  font-size: 12px;
+}
+
+/* ================= MAGAZINE WRAPPER ================= */
+.mag-wrap {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: radial-gradient(circle at center, #0a0a0a, #000);
+}
+
+/* ================= BOOK ================= */
+.book {
+  width: 90vw;
+  height: 90vh;
+  perspective: 3500px;
+  position: relative;
+  transform-style: preserve-3d;
+}
+
 /* spine */
-.mag::before {
+.book::before {
   content: "";
   position: absolute;
   left: 50%;
@@ -42,29 +84,40 @@ body {
   z-index: 10;
 }
 
-/* ===== STACKED PAGES ===== */
+/* vignette */
+.book::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle, transparent 40%, rgba(0,0,0,0.85));
+  pointer-events: none;
+  z-index: 20;
+}
+
+/* ================= PAGES ================= */
 .page {
   position: absolute;
   width: 50%;
   height: 100%;
   top: 0;
-  transform-style: preserve-3d;
-  transition: transform 1s cubic-bezier(.2,.8,.2,1);
-  box-shadow: 0 30px 80px rgba(0,0,0,0.6);
-  background: black;
+  background: #0b0b0b;
   overflow: hidden;
+  box-shadow:
+    0 40px 120px rgba(0,0,0,0.7),
+    inset 0 0 60px rgba(0,0,0,0.5);
+  transition: transform 0.9s cubic-bezier(.2,.8,.2,1);
+  backface-visibility: hidden;
 }
 
-/* left page */
+/* left/right */
 .left {
   left: 0;
-  border-right: 1px solid rgba(255,255,255,0.05);
+  border-right: 1px solid rgba(255,255,255,0.04);
 }
 
-/* right page */
 .right {
   right: 0;
-  border-left: 1px solid rgba(255,255,255,0.05);
+  border-left: 1px solid rgba(255,255,255,0.04);
 }
 
 /* images */
@@ -74,102 +127,131 @@ body {
   object-fit: contain;
   user-select: none;
   pointer-events: none;
+  filter: contrast(1.05) brightness(0.95);
 }
 
-/* ===== PAGE FLIP LAYERS ===== */
-.flip-next-left {
-  transform-origin: right;
+/* ================= PAPER TEXTURE ================= */
+.texture {
+  position: absolute;
+  inset: 0;
+  background-image: url("https://grainy-gradients.vercel.app/noise.svg");
+  opacity: 0.06;
+  mix-blend-mode: overlay;
+  pointer-events: none;
+  z-index: 5;
+}
+
+/* ================= FLIP STATES ================= */
+.flip-left {
   transform: rotateY(-180deg);
+  transform-origin: right;
 }
 
-.flip-next-right {
-  transform-origin: left;
+.flip-right {
   transform: rotateY(180deg);
+  transform-origin: left;
 }
 
-/* paper depth illusion */
-.page::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to right, rgba(0,0,0,0.4), transparent 40%, rgba(0,0,0,0.4));
-  pointer-events: none;
-}
-
-/* subtle vignette */
-.mag::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(circle, transparent 40%, rgba(0,0,0,0.8));
-  pointer-events: none;
-}
 </style>
 </head>
 
 <body>
 
-<div class="mag" id="mag">
+<!-- HERO -->
+<section class="hero">
+  <h1>ICEMAN</h1>
+  <div class="subtitle">A NEW ERA</div>
+  <div id="countdown"></div>
+  <div class="scroll">SCROLL ↓</div>
+</section>
 
-  <div class="page left" id="left">
-    <img src="img1.jpeg">
+<!-- MAGAZINE -->
+<section class="mag-wrap">
+
+  <div class="book" id="book">
+
+    <div class="texture"></div>
+
+    <div class="page left" id="left">
+      <img src="img1.jpeg">
+    </div>
+
+    <div class="page right" id="right">
+      <img src="img2.jpeg">
+    </div>
+
   </div>
 
-  <div class="page right" id="right">
-    <img src="img2.jpeg">
-  </div>
-
-</div>
+</section>
 
 <script>
-const pages = [
-  "img1.jpeg",
-  "img2.jpeg",
-  "img3.jpeg",
-  "img4.jpeg"
-];
 
+/* ================= COUNTDOWN ================= */
+const releaseDate = new Date("2026-07-01T00:00:00");
+
+function updateCountdown() {
+  const now = new Date();
+  const diff = releaseDate - now;
+
+  if (diff <= 0) {
+    document.getElementById("countdown").innerText = "OUT NOW";
+    return;
+  }
+
+  const d = Math.floor(diff / (1000*60*60*24));
+  const h = Math.floor((diff / (1000*60*60)) % 24);
+  const m = Math.floor((diff / (1000*60)) % 60);
+  const s = Math.floor((diff / 1000) % 60);
+
+  document.getElementById("countdown").innerText =
+    `${d} : ${h} : ${m} : ${s}`;
+}
+
+setInterval(updateCountdown, 1000);
+updateCountdown();
+
+/* ================= MAGAZINE ================= */
+const pages = ["img1.jpeg","img2.jpeg","img3.jpeg","img4.jpeg"];
 let index = 0;
 
 const left = document.getElementById("left");
 const right = document.getElementById("right");
-const mag = document.getElementById("mag");
+const book = document.getElementById("book");
 
-/* ===== RENDER ===== */
 function render() {
   left.innerHTML = `<img src="${pages[index] || ''}">`;
   right.innerHTML = `<img src="${pages[index+1] || ''}">`;
 }
+
 render();
 
-/* ===== REAL TURN ANIMATION ===== */
-function turn(next = true) {
+/* ================= REALISTIC TURN ================= */
+function turn(dir) {
 
-  const l = left;
-  const r = right;
+  if (dir === "next") {
+    if (index >= pages.length - 2) return;
 
-  if (next) {
-    l.style.transform = "rotateY(-180deg)";
-    r.style.transform = "rotateY(180deg)";
-  } else {
-    l.style.transform = "rotateY(0deg)";
-    r.style.transform = "rotateY(0deg)";
+    book.style.transform = "rotateY(-6deg)";
+    setTimeout(() => {
+      index += 2;
+      render();
+      book.style.transform = "rotateY(0deg)";
+    }, 300);
   }
 
-  setTimeout(() => {
-    if (next) index += 2;
-    else index -= 2;
+  if (dir === "prev") {
+    if (index <= 0) return;
 
-    index = Math.max(0, Math.min(index, pages.length - 2));
-
-    l.style.transform = "none";
-    r.style.transform = "none";
-
-    render();
-  }, 600);
+    book.style.transform = "rotateY(6deg)";
+    setTimeout(() => {
+      index -= 2;
+      render();
+      book.style.transform = "rotateY(0deg)";
+    }, 300);
+  }
 }
 
-/* ===== SWIPE ===== */
+/* ================= SWIPE ================= */
 let startX = 0;
 
 document.addEventListener("touchstart", e => {
@@ -179,15 +261,16 @@ document.addEventListener("touchstart", e => {
 document.addEventListener("touchend", e => {
   let diff = startX - e.changedTouches[0].clientX;
 
-  if (diff > 50) turn(true);
-  if (diff < -50) turn(false);
+  if (diff > 50) turn("next");
+  if (diff < -50) turn("prev");
 });
 
-/* desktop */
+/* keyboard */
 document.addEventListener("keydown", e => {
-  if (e.key === "ArrowRight") turn(true);
-  if (e.key === "ArrowLeft") turn(false);
+  if (e.key === "ArrowRight") turn("next");
+  if (e.key === "ArrowLeft") turn("prev");
 });
+
 </script>
 
 </body>
