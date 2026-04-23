@@ -26,7 +26,6 @@ body {
   justify-content: center;
   align-items: center;
   text-align: center;
-  position: relative;
 }
 
 .hero h1 {
@@ -43,8 +42,8 @@ body {
 .scroll {
   position: absolute;
   bottom: 20px;
-  font-size: 12px;
   opacity: 0.3;
+  font-size: 12px;
 }
 
 /* ================= MAGAZINE ================= */
@@ -53,10 +52,10 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  background: radial-gradient(circle at center, #111, #000);
+  background: #000;
 }
 
-/* REAL MAGAZINE PROPORTION */
+/* REAL BOOK SHAPE */
 .book {
   width: min(1200px, 92vw);
   aspect-ratio: 3 / 2;
@@ -77,26 +76,39 @@ body {
   z-index: 10;
 }
 
-/* pages */
+/* ================= PAGES (KEY FIX) ================= */
 .page {
   width: 50%;
   height: 100%;
-  overflow: hidden;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: #0b0b0b;
   position: relative;
+  overflow: hidden;
 }
 
-/* images */
+/* IMPORTANT: IMAGE IS THE PAGE (NO CONTAINERS) */
 .page img {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: contain;
-  user-select: none;
-  pointer-events: none;
+  object-fit: cover; /* 👈 THIS is the correct magazine behavior */
 }
+
+/* SPREAD HANDLING */
+.spread {
+  position: absolute;
+  width: 200%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  display: flex;
+}
+
+.spread img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 </style>
 </head>
 
@@ -112,8 +124,10 @@ body {
 <!-- ================= MAGAZINE ================= -->
 <section class="magazine">
   <div class="book">
+
     <div class="page left" id="left"></div>
     <div class="page right" id="right"></div>
+
   </div>
 </section>
 
@@ -161,17 +175,25 @@ function render() {
 
   if (!item) return;
 
-  // ================= SPREAD =================
+  // ================= SPREAD (REAL MAGAZINE BEHAVIOR) =================
   if (item.type === "spread") {
 
-    // SAME IMAGE ACROSS BOTH PAGES (NO SPLIT BUG)
-    left.innerHTML = `<img src="${item.src}" style="width:100%;height:100%;object-fit:cover;">`;
-    right.innerHTML = `<img src="${item.src}" style="width:100%;height:100%;object-fit:cover;">`;
+    const spread = `
+      <img src="${item.src}" style="
+        width: 200%;
+        height: 100%;
+        object-fit: cover;
+        transform: translateX(0%);
+      ">
+    `;
+
+    left.innerHTML = spread;
+    right.innerHTML = "";
 
     return;
   }
 
-  // ================= SINGLE =================
+  // ================= SINGLE PAGE (FULL COVER) =================
   left.innerHTML = `<img src="${item.src}">`;
   right.innerHTML = `<img src="${pages[index+1]?.src || ''}">`;
 }
@@ -191,7 +213,7 @@ function prev() {
   }
 }
 
-/* ================= SWIPE ================= */
+/* ================= INPUT ================= */
 let startX = 0;
 
 document.addEventListener("touchstart", e => {
