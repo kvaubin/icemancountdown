@@ -31,11 +31,12 @@ body {
 .hero h1 {
   font-size: 5rem;
   letter-spacing: 12px;
+  font-weight: 600;
 }
 
 #countdown {
   margin-top: 20px;
-  font-size: 2rem;
+  font-size: 1.8rem;
   opacity: 0.7;
 }
 
@@ -55,12 +56,13 @@ body {
   background: radial-gradient(circle at center, #111, #000);
 }
 
+/* REAL MAGAZINE PROPORTION (KEY FIX) */
 .book {
-  width: min(1000px, 92vw);
-  height: 80vh;
+  width: min(1200px, 92vw);
+  aspect-ratio: 3 / 2; /* 👈 THIS fixes the “wrong size” issue */
   display: flex;
   position: relative;
-  box-shadow: 0 40px 120px rgba(0,0,0,0.8);
+  box-shadow: 0 40px 120px rgba(0,0,0,0.85);
 }
 
 /* spine */
@@ -75,23 +77,35 @@ body {
   z-index: 10;
 }
 
+/* pages */
 .page {
   width: 50%;
   height: 100%;
-  background: #0b0b0b;
+  overflow: hidden;
   display: flex;
   justify-content: center;
   align-items: center;
-  overflow: hidden;
+  background: #0b0b0b;
 }
 
+/* images */
 .page img {
-  max-width: 100%;
-  max-height: 100%;
+  width: 100%;
+  height: 100%;
   object-fit: contain;
   user-select: none;
   pointer-events: none;
 }
+
+/* subtle print feel */
+.page::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, transparent 60%, rgba(0,0,0,0.4));
+  pointer-events: none;
+}
+
 </style>
 </head>
 
@@ -143,12 +157,6 @@ setInterval(updateCountdown, 1000);
 updateCountdown();
 
 /* ================= MAGAZINE DATA ================= */
-/*
-  type:
-  - single = normal page
-  - spread = horizontal image across both pages
-*/
-
 const pages = [
   { type: "single", src: "img1.jpeg" },
   { type: "spread", src: "img2.jpeg" },
@@ -166,14 +174,22 @@ function render() {
 
   if (!p) return;
 
-  // FULL SPREAD (horizontal image)
+  // ================= SPREAD IMAGE =================
   if (p.type === "spread") {
-    left.innerHTML = `<img src="${p.src}" style="width:200%;height:100%;object-fit:cover;">`;
+    left.innerHTML = `
+      <img src="${p.src}"
+      style="
+        width: 200%;
+        height: 100%;
+        object-fit: cover;
+        transform: translateX(-25%);
+      ">
+    `;
     right.innerHTML = "";
     return;
   }
 
-  // NORMAL PAGE
+  // ================= NORMAL =================
   left.innerHTML = `<img src="${p.src}">`;
   right.innerHTML = `<img src="${pages[index+1]?.src || ''}">`;
 }
