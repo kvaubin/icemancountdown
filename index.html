@@ -25,7 +25,6 @@ body {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  text-align: center;
 }
 
 .hero h1 {
@@ -39,13 +38,6 @@ body {
   opacity: 0.7;
 }
 
-.scroll {
-  position: absolute;
-  bottom: 20px;
-  opacity: 0.3;
-  font-size: 12px;
-}
-
 /* ================= MAGAZINE ================= */
 .magazine {
   height: 100vh;
@@ -55,13 +47,14 @@ body {
   background: #000;
 }
 
-/* REAL BOOK SHAPE */
+/* REAL OPEN BOOK FRAME */
 .book {
   width: min(1200px, 92vw);
   aspect-ratio: 3 / 2;
-  display: flex;
   position: relative;
+  overflow: hidden;
   box-shadow: 0 40px 120px rgba(0,0,0,0.85);
+  border-radius: 2px;
 }
 
 /* spine */
@@ -73,62 +66,40 @@ body {
   height: 100%;
   background: rgba(255,255,255,0.08);
   transform: translateX(-50%);
-  z-index: 10;
+  z-index: 5;
 }
 
-/* ================= PAGES (KEY FIX) ================= */
-.page {
-  width: 50%;
-  height: 100%;
-  position: relative;
-  overflow: hidden;
-}
-
-/* IMPORTANT: IMAGE IS THE PAGE (NO CONTAINERS) */
-.page img {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover; /* 👈 THIS is the correct magazine behavior */
-}
-
-/* SPREAD HANDLING */
+/* THE IMAGE IS THE WHOLE BOOK SURFACE */
 .spread {
   position: absolute;
-  width: 200%;
-  height: 100%;
-  top: 0;
-  left: 0;
-  display: flex;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  transition: opacity 0.4s ease;
 }
 
-.spread img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+/* optional dark paper depth */
+.book::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, transparent 40%, rgba(0,0,0,0.5));
+  pointer-events: none;
 }
-
 </style>
 </head>
 
 <body>
 
-<!-- ================= HERO ================= -->
+<!-- HERO -->
 <section class="hero">
   <h1>ICEMAN</h1>
   <div id="countdown"></div>
-  <div class="scroll">↓ scroll</div>
 </section>
 
-<!-- ================= MAGAZINE ================= -->
+<!-- MAGAZINE -->
 <section class="magazine">
-  <div class="book">
-
-    <div class="page left" id="left"></div>
-    <div class="page right" id="right"></div>
-
-  </div>
+  <div class="book" id="book"></div>
 </section>
 
 <script>
@@ -166,36 +137,27 @@ const pages = [
 
 let index = 0;
 
-const left = document.getElementById("left");
-const right = document.getElementById("right");
+const book = document.getElementById("book");
 
 /* ================= RENDER ================= */
 function render() {
   const item = pages[index];
-
   if (!item) return;
 
-  // ================= SPREAD (REAL MAGAZINE BEHAVIOR) =================
+  let style = "";
+
   if (item.type === "spread") {
-
-    const spread = `
-      <img src="${item.src}" style="
-        width: 200%;
-        height: 100%;
-        object-fit: cover;
-        transform: translateX(0%);
-      ">
+    /* FULL BOOK COVER IMAGE (NO SPLIT) */
+    style = `
+      background-image: url('${item.src}');
     `;
-
-    left.innerHTML = spread;
-    right.innerHTML = "";
-
-    return;
+  } else {
+    style = `
+      background-image: url('${item.src}');
+    `;
   }
 
-  // ================= SINGLE PAGE (FULL COVER) =================
-  left.innerHTML = `<img src="${item.src}">`;
-  right.innerHTML = `<img src="${pages[index+1]?.src || ''}">`;
+  book.innerHTML = `<div class="spread" style="${style}"></div>`;
 }
 
 /* ================= NAV ================= */
@@ -213,7 +175,7 @@ function prev() {
   }
 }
 
-/* ================= INPUT ================= */
+/* swipe */
 let startX = 0;
 
 document.addEventListener("touchstart", e => {
