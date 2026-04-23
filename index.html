@@ -16,9 +16,10 @@ body {
   background: #050505;
   color: white;
   font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  overflow-x: hidden;
 }
 
-/* ================= HERO ================= */
+/* HERO */
 .hero {
   height: 100vh;
   display: flex;
@@ -38,7 +39,7 @@ body {
   opacity: 0.7;
 }
 
-/* ================= MAGAZINE ================= */
+/* MAGAZINE */
 .magazine {
   height: 100vh;
   display: flex;
@@ -47,14 +48,14 @@ body {
   background: #000;
 }
 
-/* REAL OPEN BOOK FRAME */
+/* REAL OPEN BOOK */
 .book {
   width: min(1200px, 92vw);
   aspect-ratio: 3 / 2;
   position: relative;
-  overflow: hidden;
+  display: flex;
+  perspective: 2000px;
   box-shadow: 0 40px 120px rgba(0,0,0,0.85);
-  border-radius: 2px;
 }
 
 /* spine */
@@ -62,33 +63,43 @@ body {
   content: "";
   position: absolute;
   left: 50%;
-  width: 2px;
+  top: 0;
+  width: 3px;
   height: 100%;
   background: rgba(255,255,255,0.08);
   transform: translateX(-50%);
-  z-index: 5;
+  z-index: 10;
 }
 
-/* THE IMAGE IS THE WHOLE BOOK SURFACE */
-.spread {
-  position: absolute;
-  inset: 0;
+.page {
+  width: 50%;
+  height: 100%;
   background-size: cover;
   background-position: center;
-  transition: opacity 0.4s ease;
+  background-repeat: no-repeat;
+  position: relative;
 }
 
-/* optional dark paper depth */
+/* page depth shadow */
+.page.left {
+  box-shadow: inset -30px 0 60px rgba(0,0,0,0.6);
+}
+
+.page.right {
+  box-shadow: inset 30px 0 60px rgba(0,0,0,0.6);
+}
+
+/* subtle paper gradient */
 .book::after {
   content: "";
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at center, transparent 40%, rgba(0,0,0,0.5));
+  background: radial-gradient(circle at center, transparent 40%, rgba(0,0,0,0.55));
   pointer-events: none;
 }
+
 </style>
 </head>
-
 <body>
 
 <!-- HERO -->
@@ -97,14 +108,14 @@ body {
   <div id="countdown"></div>
 </section>
 
-<!-- MAGAZINE -->
+<!-- BOOK -->
 <section class="magazine">
   <div class="book" id="book"></div>
 </section>
 
 <script>
 
-/* ================= COUNTDOWN ================= */
+/* COUNTDOWN */
 const releaseDate = new Date("2026-07-01T00:00:00");
 
 function updateCountdown() {
@@ -128,39 +139,25 @@ function updateCountdown() {
 setInterval(updateCountdown, 1000);
 updateCountdown();
 
-/* ================= MAGAZINE DATA ================= */
+/* BOOK PAGES */
 const pages = [
-  { type: "single", src: "img1.jpeg" },
-  { type: "spread", src: "img2.jpeg" },
-  { type: "single", src: "img3.jpeg" }
+  { left: "img1.jpeg", right: "img1b.jpeg" },
+  { left: "img2.jpeg", right: "img2b.jpeg" },
+  { left: "img3.jpeg", right: "img3b.jpeg" }
 ];
 
 let index = 0;
-
 const book = document.getElementById("book");
 
-/* ================= RENDER ================= */
 function render() {
   const item = pages[index];
-  if (!item) return;
 
-  let style = "";
-
-  if (item.type === "spread") {
-    /* FULL BOOK COVER IMAGE (NO SPLIT) */
-    style = `
-      background-image: url('${item.src}');
-    `;
-  } else {
-    style = `
-      background-image: url('${item.src}');
-    `;
-  }
-
-  book.innerHTML = `<div class="spread" style="${style}"></div>`;
+  book.innerHTML = `
+    <div class="page left" style="background-image:url('${item.left}')"></div>
+    <div class="page right" style="background-image:url('${item.right}')"></div>
+  `;
 }
 
-/* ================= NAV ================= */
 function next() {
   if (index < pages.length - 1) {
     index++;
