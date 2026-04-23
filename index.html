@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Iceman Countdown</title>
+  <style>
+    body {
+      margin: 0;
+      background: black;
+      color: white;
+      font-family: Arial, sans-serif;
+      display: flex;
+      height: 100vh;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
+    h1 {
+      font-size: 3rem;
+      margin-bottom: 20px;
+    }
+    #countdown {
+      font-size: 2rem;
+      letter-spacing: 2px;
+    }
+  </style>
+</head>
+<body>
+
+<h1>ICEMAN</h1>
+<div id="countdown"></div>
+
+<script>
+  const releaseDate = new Date("2026-07-01T00:00:00");
+
+  function updateCountdown() {
+    const now = new Date();
+    const diff = releaseDate - now;
+
+    if (diff <= 0) {
+      document.getElementById("countdown").innerHTML = "OUT NOW";
+      return;
+    }
+
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+    const minutes = Math.floor((diff / (1000 * 60)) % 60);
+    const seconds = Math.floor((diff / 1000) % 60);
+
+    document.getElementById("countdown").innerHTML =
+      `${days}d ${hours}h ${minutes}m ${seconds}s`;
+  }
+
+  setInterval(updateCountdown, 1000);
+</script>
+
+</body>
+</html>
