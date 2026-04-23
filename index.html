@@ -30,12 +30,13 @@ body {
   justify-content: center;
   align-items: center;
   z-index: 20;
-  transition: opacity 0.8s ease, transform 0.8s ease;
+
+  transition: transform 1s ease, opacity 1s ease;
 }
 
 .hero.hidden {
+  transform: translateY(-100%);
   opacity: 0;
-  transform: scale(1.05);
   pointer-events: none;
 }
 
@@ -109,36 +110,45 @@ header h1 {
   letter-spacing: 2px;
 }
 
-/* ===== VIEWER ===== */
+/* ===== BOOK AREA ===== */
 .viewer {
   position: absolute;
   top: 70px;
   width: 100%;
   height: calc(100vh - 70px);
+
   display: flex;
   justify-content: center;
   align-items: center;
+
+  /* start hidden under hero */
+  transform: translateY(100%);
+  transition: transform 1s ease;
 }
 
-/* FRAME (side crop mask) */
+.viewer.show {
+  transform: translateY(0);
+}
+
+/* FRAME (NO TOP/BOTTOM CROP EFFECT) */
 .frame {
   width: 92%;
   height: 92%;
   background: #0b0b0b;
   border-radius: 24px;
   overflow: hidden;
-  box-shadow: 0 0 0 14px #0b0b0b;
   position: relative;
+  box-shadow: 0 0 0 14px #0b0b0b;
 }
 
-/* ===== BOOK ZOOM (NO TOP CROP FIXED) ===== */
+/* ONLY SIDE CROPPING + ZOOM */
 iframe {
   width: 100%;
   height: 100%;
   border: none;
 
-  /* zoom ONLY (no translate = no top cut) */
-  transform: scale(1.13);
+  /* zoom in */
+  transform: scale(1.12);
   transform-origin: center;
 
   opacity: 0;
@@ -184,7 +194,7 @@ iframe.loaded {
   }
 
   iframe {
-    transform: scale(1.10);
+    transform: scale(1.08);
   }
 }
 
@@ -219,7 +229,7 @@ iframe.loaded {
 </div>
 
 <!-- BOOK -->
-<div class="viewer">
+<div class="viewer" id="viewer">
   <div class="frame">
     <iframe 
       id="flipbook"
@@ -231,7 +241,7 @@ iframe.loaded {
 
 <script>
 
-/* ===== COUNTDOWN ===== */
+/* COUNTDOWN */
 const targetDate = new Date("2026-05-01T00:00:00").getTime();
 const countdownEl = document.getElementById("countdown");
 
@@ -255,12 +265,13 @@ function updateCountdown() {
 setInterval(updateCountdown, 1000);
 updateCountdown();
 
-/* ===== ENTER ===== */
+/* ENTER ANIMATION */
 function enterSite() {
   document.getElementById("hero").classList.add("hidden");
+  document.getElementById("viewer").classList.add("show");
 }
 
-/* ===== LOAD ===== */
+/* LOAD */
 const iframe = document.getElementById("flipbook");
 const loader = document.getElementById("loader");
 
