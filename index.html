@@ -15,13 +15,13 @@
 }
 
 body {
-  font-family: 'Inter', sans-serif;
   background: black;
   color: white;
+  font-family: 'Inter', sans-serif;
   overflow-x: hidden;
 }
 
-/* -------- HERO -------- */
+/* ================= HERO ================= */
 .hero {
   height: 100vh;
   display: flex;
@@ -29,84 +29,83 @@ body {
   align-items: center;
   flex-direction: column;
   text-align: center;
+  position: relative;
 }
 
-h1 {
+.hero h1 {
   font-size: 5rem;
   letter-spacing: 12px;
 }
 
 .subtitle {
   opacity: 0.5;
-  margin: 20px 0;
   letter-spacing: 4px;
+  margin-top: 10px;
 }
 
 #countdown {
+  margin-top: 20px;
   font-size: 2rem;
+  letter-spacing: 3px;
 }
 
-/* scroll hint */
-.scroll {
+.scroll-hint {
   position: absolute;
-  bottom: 30px;
-  font-size: 0.8rem;
+  bottom: 20px;
   opacity: 0.4;
-  animation: bounce 2s infinite;
+  font-size: 0.8rem;
 }
 
-@keyframes bounce {
-  0%,100% { transform: translateY(0); }
-  50% { transform: translateY(10px); }
-}
-
-/* -------- MAGAZINE -------- */
+/* ================= MAGAZINE ================= */
 .magazine {
   height: 100vh;
   display: flex;
-  align-items: center;
-  overflow: hidden;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  background: #000;
 }
 
-.mag-track {
-  display: flex;
-  height: 80%;
-  transition: transform 0.4s ease;
+.magazine::-webkit-scrollbar {
+  display: none;
 }
 
 .page {
   min-width: 100vw;
-  height: 100%;
+  height: 100vh;
+  scroll-snap-align: center;
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
-/* vertical image (single page) */
+/* vertical image */
 .page img.vertical {
-  height: 90%;
-  object-fit: cover;
+  max-height: 90vh;
+  max-width: 90vw;
+  object-fit: contain;
 }
 
-/* horizontal = double spread */
+/* horizontal spread (2 pages feel) */
 .page.double {
   min-width: 200vw;
 }
 
 .page img.horizontal {
-  width: 90%;
-  object-fit: cover;
+  width: 80vw;
+  max-height: 90vh;
+  object-fit: contain;
 }
 
-/* subtle fade edges */
+/* fade edges */
 .magazine::before,
 .magazine::after {
   content: "";
   position: absolute;
-  width: 100px;
+  top: 0;
+  width: 80px;
   height: 100%;
   z-index: 2;
-  pointer-events: none;
 }
 
 .magazine::before {
@@ -129,41 +128,36 @@ h1 {
   <h1>ICEMAN</h1>
   <div class="subtitle">A NEW ERA</div>
   <div id="countdown"></div>
-  <div class="scroll">SCROLL ↓</div>
+  <div class="scroll-hint">SCROLL ↓</div>
 </section>
 
 <!-- MAGAZINE -->
 <section class="magazine">
-  <div class="mag-track" id="track">
 
-    <!-- VERTICAL -->
-    <div class="page">
-      <img src="img1.jpeg" class="vertical">
-    </div>
-
-    <!-- HORIZONTAL (DOUBLE PAGE) -->
-    <div class="page double">
-      <img src="img2.jpeg" class="horizontal">
-    </div>
-
-    <!-- VERTICAL -->
-    <div class="page">
-      <img src="img3.jpeg" class="vertical">
-    </div>
-
+  <div class="page">
+    <img src="img1.jpeg" class="vertical">
   </div>
+
+  <div class="page double">
+    <img src="img2.jpeg" class="horizontal">
+  </div>
+
+  <div class="page">
+    <img src="img3.jpeg" class="vertical">
+  </div>
+
 </section>
 
 <script>
-/* COUNTDOWN */
-const releaseDate = new Date("2026-05-15T00:00:00");
+// ================= COUNTDOWN =================
+const releaseDate = new Date("2026-07-01T00:00:00");
 
 function updateCountdown() {
   const now = new Date();
   const diff = releaseDate - now;
 
   if (diff <= 0) {
-    document.getElementById("countdown").innerHTML = "OUT NOW";
+    document.getElementById("countdown").innerText = "OUT NOW";
     return;
   }
 
@@ -172,32 +166,12 @@ function updateCountdown() {
   const m = Math.floor((diff / (1000 * 60)) % 60);
   const s = Math.floor((diff / 1000) % 60);
 
-  document.getElementById("countdown").innerHTML =
+  document.getElementById("countdown").innerText =
     `${d} : ${h} : ${m} : ${s}`;
 }
+
 setInterval(updateCountdown, 1000);
-
-/* SWIPE LOGIC */
-const track = document.getElementById("track");
-let index = 0;
-
-let startX = 0;
-
-document.addEventListener("touchstart", e => {
-  startX = e.touches[0].clientX;
-});
-
-document.addEventListener("touchend", e => {
-  let endX = e.changedTouches[0].clientX;
-  let diff = startX - endX;
-
-  if (diff > 50) index++;
-  if (diff < -50) index--;
-
-  index = Math.max(0, Math.min(index, track.children.length - 1));
-
-  track.style.transform = `translateX(-${index * 100}vw)`;
-});
+updateCountdown();
 </script>
 
 </body>
