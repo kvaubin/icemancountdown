@@ -35,96 +35,110 @@ body{
 
 #countdown{
   margin-top:20px;
-  font-size:1.8rem;
+  font-size:1.6rem;
   opacity:.7;
 }
 
-/* SCENE */
+/* MAGAZINE */
 .magazine{
   height:100vh;
   display:flex;
   justify-content:center;
   align-items:center;
-  perspective:2500px;
   background:#000;
+  perspective:1800px;
 }
 
-/* BOOK */
 .book{
   width:min(1200px,92vw);
   aspect-ratio:3/2;
   position:relative;
-  transform-style:preserve-3d;
+  overflow:hidden;
+  background:#111;
+  box-shadow:0 40px 120px rgba(0,0,0,.8);
+  border-radius:2px;
 }
 
+/* spine */
 .book::before{
   content:"";
   position:absolute;
   left:50%;
   top:0;
-  width:4px;
+  width:3px;
   height:100%;
   background:rgba(255,255,255,.08);
   transform:translateX(-50%);
-  z-index:10;
+  z-index:5;
 }
 
-/* STATIC BASE PAGES */
-.page{
+/* pages container */
+.pages{
+  width:100%;
+  height:100%;
+  display:flex;
   position:absolute;
+  top:0;
+  left:0;
+}
+
+.page{
   width:50%;
   height:100%;
-  top:0;
+  position:relative;
   overflow:hidden;
-  background:#111;
-  backface-visibility:hidden;
+  background:#0b0b0b;
+  transition:transform .6s ease, opacity .6s ease;
 }
-
-.page.left{left:0;}
-.page.right{right:0;}
 
 .page img{
   width:100%;
   height:100%;
   object-fit:cover;
+  display:block;
 }
 
-/* CURLED PAGE (FLIP SHEET) */
-.curl{
+/* subtle shadows */
+.page.left{
+  box-shadow:inset -30px 0 60px rgba(0,0,0,.6);
+}
+
+.page.right{
+  box-shadow:inset 30px 0 60px rgba(0,0,0,.6);
+}
+
+/* flip animation layer */
+.flip{
   position:absolute;
   width:50%;
   height:100%;
-  right:0;
   top:0;
-  transform-origin:left center;
-  transform-style:preserve-3d;
-  z-index:100;
-  cursor:grab;
+  right:0;
+  transform-origin:left;
+  z-index:10;
+  background:#111;
+  backface-visibility:hidden;
+  transition:transform .7s cubic-bezier(.2,.8,.2,1);
 }
 
-.curl img{
+.flip img{
   width:100%;
   height:100%;
   object-fit:cover;
-  backface-visibility:hidden;
 }
 
-/* front shadow (page bend) */
-.curl::after{
-  content:"";
-  position:absolute;
-  inset:0;
-  background:linear-gradient(to left, rgba(0,0,0,.55), transparent);
-  pointer-events:none;
+.flip.turn{
+  transform:rotateY(-180deg);
 }
 
-/* spine glow */
-.book::after{
-  content:"";
+/* hint */
+.hint{
   position:absolute;
-  inset:0;
-  background:radial-gradient(circle at center, transparent 40%, rgba(0,0,0,.65));
-  pointer-events:none;
+  bottom:20px;
+  width:100%;
+  text-align:center;
+  font-size:12px;
+  opacity:.4;
 }
 
 </style>
@@ -143,25 +157,30 @@ body{
 <script>
 
 /* COUNTDOWN */
-const releaseDate=new Date("2026-07-01T00:00:00");
+const releaseDate = new Date("2026-07-01T00:00:00");
 
 function updateCountdown(){
   const now=new Date();
   const diff=releaseDate-now;
+
   if(diff<=0){
     document.getElementById("countdown").innerText="OUT NOW";
     return;
   }
+
   const d=Math.floor(diff/86400000);
   const h=Math.floor(diff/3600000%24);
   const m=Math.floor(diff/60000%60);
   const s=Math.floor(diff/1000%60);
-  document.getElementById("countdown").innerText=`${d}d ${h}h ${m}m ${s}s`;
+
+  document.getElementById("countdown").innerText=
+    `${d}d ${h}h ${m}m ${s}s`;
 }
+
 setInterval(updateCountdown,1000);
 updateCountdown();
 
-/* PAGES */
+/* CLEAN MAGAZINE DATA */
 const pages=[
   {left:"img1.jpeg",right:"img2.jpeg"},
   {left:"img3.jpeg",right:"img4.jpeg"},
@@ -173,74 +192,48 @@ const book=document.getElementById("book");
 
 function render(){
   const p=pages[index];
+
   book.innerHTML=`
-    <div class="page left"><img src="${p.left}"></div>
-    <div class="page right"><img src="${p.right}"></div>
-    <div class="curl" id="curl"><img src="${p.right}"></div>
+    <div class="pages">
+      <div class="page left"><img src="${p.left}"></div>
+      <div class="page right"><img src="${p.right}"></div>
+    </div>
+    <div class="flip" id="flip"><img src="${p.right}"></div>
   `;
-  bindCurl();
 }
 
-/* REAL CURL DRAG SYSTEM */
-function bindCurl(){
-  const curl=document.getElementById("curl");
-  let dragging=false;
+function next(){
+  const flip=document.getElementById("flip");
+  if(index>=pages.length-1) return;
 
-  let startX=0;
-  let current=0;
+  flip.classList.add("turn");
 
-  curl.addEventListener("mousedown",e=>{
-    dragging=true;
-    startX=e.clientX;
-  });
-
-  window.addEventListener("mousemove",e=>{
-    if(!dragging) return;
-
-    const dx=e.clientX-startX;
-    current=Math.min(Math.max(dx,0),600);
-
-    const rot=(-current/600)*180;
-    curl.style.transform=`translateX(${current}px) rotateY(${rot}deg)`;
-  });
-
-  window.addEventListener("mouseup",()=>{
-    if(!dragging) return;
-    dragging=false;
-
-    if(current>250){
-      nextPage();
-    }else{
-      curl.style.transition="transform .4s ease";
-      curl.style.transform="translateX(0) rotateY(0deg)";
-      setTimeout(()=>curl.style.transition="",400);
-    }
-
-    current=0;
-  });
-}
-
-function nextPage(){
-  if(index<pages.length-1){
+  setTimeout(()=>{
     index++;
     render();
-  }
+  },600);
 }
 
-function prevPage(){
-  if(index>0){
-    index--;
-    render();
-  }
+function prev(){
+  if(index<=0) return;
+  index--;
+  render();
 }
 
-/* touch swipe */
+/* swipe */
 let startX=0;
+
 document.addEventListener("touchstart",e=>startX=e.touches[0].clientX);
+
 document.addEventListener("touchend",e=>{
   let dx=startX-e.changedTouches[0].clientX;
-  if(dx>50) nextPage();
-  if(dx<-50) prevPage();
+  if(dx>50) next();
+  if(dx<-50) prev();
+});
+
+document.addEventListener("keydown",e=>{
+  if(e.key==="ArrowRight") next();
+  if(e.key==="ArrowLeft") prev();
 });
 
 render();
