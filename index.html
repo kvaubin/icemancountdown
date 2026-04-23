@@ -6,11 +6,16 @@
 <title>ICEMAN</title>
 
 <style>
-body {
+* {
   margin: 0;
-  background: black;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: #050505;
   color: white;
-  font-family: Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 /* ================= HERO ================= */
@@ -26,74 +31,130 @@ body {
 
 .hero h1 {
   font-size: 5rem;
-  letter-spacing: 12px;
+  letter-spacing: 14px;
+  font-weight: 600;
 }
 
 #countdown {
   margin-top: 20px;
-  font-size: 2rem;
-  opacity: 0.8;
+  font-size: 1.8rem;
+  opacity: 0.7;
+  letter-spacing: 3px;
 }
 
 .scroll {
   position: absolute;
   bottom: 20px;
-  opacity: 0.4;
+  opacity: 0.3;
+  font-size: 12px;
 }
 
-/* ================= FLIPBOOK SECTION ================= */
-.section {
+/* ================= MAGAZINE ================= */
+.magazine {
   height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
-  background: #0a0a0a;
+  background: radial-gradient(circle at center, #111, #000);
 }
 
-/* book container */
-#book {
-  width: 90vw;
-  height: 90vh;
+/* ===== BOOK ===== */
+.book {
+  width: min(1000px, 92vw);
+  height: 80vh;
+  display: flex;
+  box-shadow:
+    0 40px 120px rgba(0,0,0,0.8),
+    inset 0 0 120px rgba(0,0,0,0.5);
+  border-radius: 6px;
+  overflow: hidden;
+  position: relative;
 }
+
+/* spine */
+.book::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  width: 2px;
+  height: 100%;
+  background: rgba(255,255,255,0.06);
+  transform: translateX(-50%);
+  z-index: 5;
+}
+
+/* pages */
+.page {
+  width: 50%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #0b0b0b;
+  position: relative;
+}
+
+/* subtle paper texture */
+.page::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("https://grainy-gradients.vercel.app/noise.svg");
+  opacity: 0.05;
+  pointer-events: none;
+}
+
+/* images */
+.page img {
+  max-width: 90%;
+  max-height: 90%;
+  object-fit: contain;
+  filter: contrast(1.05) brightness(0.95);
+  user-select: none;
+  pointer-events: none;
+}
+
+/* shadow depth */
+.page.left {
+  box-shadow: inset -40px 0 80px rgba(0,0,0,0.6);
+}
+
+.page.right {
+  box-shadow: inset 40px 0 80px rgba(0,0,0,0.6);
+}
+
 </style>
 </head>
 
 <body>
 
-<!-- ================= HERO PAGE ================= -->
+<!-- ================= HERO ================= -->
 <section class="hero">
   <h1>ICEMAN</h1>
   <div id="countdown"></div>
   <div class="scroll">↓ scroll</div>
 </section>
 
-<!-- ================= FLIPBOOK ================= -->
-<section class="section">
+<!-- ================= MAGAZINE ================= -->
+<section class="magazine">
 
-  <div id="book">
+  <div class="book">
 
-    <div data-density="hard">
-      <img src="img1.jpeg" style="width:100%;height:100%;object-fit:contain;">
+    <div class="page left">
+      <img src="img1.jpeg">
     </div>
 
-    <div>
-      <img src="img2.jpeg" style="width:100%;height:100%;object-fit:contain;">
-    </div>
-
-    <div>
-      <img src="img3.jpeg" style="width:100%;height:100%;object-fit:contain;">
+    <div class="page right">
+      <img src="img2.jpeg">
     </div>
 
   </div>
 
 </section>
 
-<!-- ================= LIBRARY ================= -->
-<script src="https://unpkg.com/stpageflip/dist/js/page-flip.browser.min.js"></script>
-
 <script>
 
-/* ===== COUNTDOWN ===== */
+/* ================= COUNTDOWN ================= */
 const releaseDate = new Date("2026-07-01T00:00:00");
 
 function updateCountdown() {
@@ -111,23 +172,11 @@ function updateCountdown() {
   const s = Math.floor((diff / 1000) % 60);
 
   document.getElementById("countdown").innerText =
-    `${d}d ${h}h ${m}m ${s}s`;
+    `${d} : ${h} : ${m} : ${s}`;
 }
+
 setInterval(updateCountdown, 1000);
 updateCountdown();
-
-
-/* ===== APPLE BOOKS STYLE FLIPBOOK ===== */
-const pageFlip = new St.PageFlip(document.getElementById("book"), {
-  width: 400,
-  height: 600,
-  size: "stretch",
-  maxShadowOpacity: 0.5,
-  showCover: false,
-  mobileScrollSupport: true
-});
-
-pageFlip.loadFromHTML(document.querySelectorAll("#book > div"));
 
 </script>
 
