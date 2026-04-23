@@ -9,12 +9,11 @@
 
     html, body {
       height: 100%;
-      background: #0b0b0b;
+      background: #000;
       color: white;
       overflow: hidden;
     }
 
-    /* ===== SCROLL CONTAINER ===== */
     .scroll-container {
       height: 100vh;
       overflow-y: scroll;
@@ -23,7 +22,6 @@
     }
     .scroll-container::-webkit-scrollbar { display: none; }
 
-    /* ===== SECTIONS ===== */
     section {
       height: 100vh;
       scroll-snap-align: start;
@@ -36,22 +34,28 @@
 
     /* ===== HERO ===== */
     #hero {
-      background: #0b0b0b;
-      gap: 28px;
-      z-index: 1;
+      background: url('background.jpeg') center center / cover no-repeat;
+      gap: 24px;
     }
 
-    .logo {
-      font-size: 72px;
-      font-weight: 800;
-      letter-spacing: 14px;
-      text-transform: uppercase;
-      text-align: center;
+    #hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.45);
+      z-index: 0;
+    }
+
+    #hero > * { position: relative; z-index: 1; }
+
+    .logo img {
+      width: 220px;
+      object-fit: contain;
     }
 
     .countdown {
       font-size: 18px;
-      color: #888;
+      color: #ddd;
       letter-spacing: 4px;
     }
 
@@ -74,9 +78,10 @@
     .scroll-hint {
       position: absolute;
       bottom: 30px;
+      z-index: 1;
       font-size: 11px;
       letter-spacing: 4px;
-      color: #444;
+      color: rgba(255,255,255,0.4);
       animation: pulse 2.2s ease-in-out infinite;
     }
 
@@ -85,14 +90,13 @@
       50% { opacity: 1; transform: translateY(4px); }
     }
 
-    /* ===== BOOKLET ===== */
+    /* ===== BOOKLET (untouched) ===== */
     #booklet {
       background: #000;
       padding: 0;
       overflow: hidden;
     }
 
-    /* Crop the heyzine borders by oversizing and clipping */
     .frame {
       position: relative;
       width: 100%;
@@ -113,17 +117,14 @@
     .loader {
       position: fixed;
       inset: 0;
-      background: #0b0b0b;
+      background: #000;
       display: flex;
       justify-content: center;
       align-items: center;
       z-index: 999;
       transition: opacity 0.8s ease;
     }
-    .loader.hide {
-      opacity: 0;
-      pointer-events: none;
-    }
+    .loader.hide { opacity: 0; pointer-events: none; }
 
     .spinner {
       width: 36px;
@@ -137,7 +138,7 @@
 
     /* ===== MOBILE ===== */
     @media (max-width: 768px) {
-      .logo { font-size: 44px; letter-spacing: 8px; }
+      .logo img { width: 160px; }
       .singles iframe { width: 88vw; height: 140px; }
       .frame iframe { width: 130%; height: 130%; top: -15%; left: -15%; }
     }
@@ -145,41 +146,41 @@
 </head>
 <body>
 
-  <!-- LOADER -->
   <div class="loader" id="loader">
     <div class="spinner"></div>
   </div>
 
   <div class="scroll-container" id="scrollContainer">
 
-    <!-- SECTION 1: HERO -->
+    <!-- HERO -->
     <section id="hero">
-      <div class="logo">ICEMAN</div>
+      <div class="logo">
+        <img src="logo.jpeg" alt="Iceman">
+      </div>
       <div class="countdown" id="countdown">Loading...</div>
 
       <div class="singles">
-        <!-- Swap these src values with real Apple Music embed URLs -->
         <iframe
           allow="autoplay *; encrypted-media *; fullscreen *"
           sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-top-navigation-by-user-activation"
-          src="PASTE_WHAT_DID_I_MISS_URL_HERE">
+          src="https://embed.music.apple.com/ca/album/what-did-i-miss/1824600278?i=1824600280">
         </iframe>
         <iframe
           allow="autoplay *; encrypted-media *; fullscreen *"
           sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-top-navigation-by-user-activation"
-          src="PASTE_WHICH_ONE_URL_HERE">
+          src="https://embed.music.apple.com/ca/album/which-one/1828770371?i=1828770374">
         </iframe>
         <iframe
           allow="autoplay *; encrypted-media *; fullscreen *"
           sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-top-navigation-by-user-activation"
-          src="PASTE_DOG_HOUSE_URL_HERE">
+          src="https://embed.music.apple.com/ca/album/dog-house/1838368565?i=1838368566">
         </iframe>
       </div>
 
       <div class="scroll-hint">↓ &nbsp; S C R O L L</div>
     </section>
 
-    <!-- SECTION 2: BOOKLET -->
+    <!-- BOOKLET -->
     <section id="booklet">
       <div class="frame">
         <iframe
@@ -193,7 +194,6 @@
   </div>
 
   <script>
-    // COUNTDOWN TO MAY 1 2026
     const target = new Date("2026-05-01T00:00:00").getTime();
     const countdownEl = document.getElementById("countdown");
 
@@ -209,16 +209,13 @@
     setInterval(tick, 1000);
     tick();
 
-    // HIDE LOADER ONCE FLIPBOOK LOADS
     const flipbook = document.getElementById("flipbook");
     const loader = document.getElementById("loader");
     flipbook.onload = () => loader.classList.add("hide");
-    setTimeout(() => loader.classList.add("hide"), 5000); // fallback
+    setTimeout(() => loader.classList.add("hide"), 5000);
 
-    // HERO FADES OUT AS YOU SCROLL DOWN
     const scrollContainer = document.getElementById("scrollContainer");
     const hero = document.getElementById("hero");
-
     scrollContainer.addEventListener("scroll", () => {
       const progress = Math.min(scrollContainer.scrollTop / window.innerHeight, 1);
       hero.style.opacity = 1 - progress * 1.8;
