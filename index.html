@@ -8,100 +8,196 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&display=swap" rel="stylesheet">
 
 <style>
-  * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  }
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 
-  body {
-    background: radial-gradient(circle at center, #0a0a0a, #000000);
-    color: white;
-    font-family: 'Inter', sans-serif;
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    overflow: hidden;
-  }
+body {
+  font-family: 'Inter', sans-serif;
+  background: black;
+  color: white;
+  overflow-x: hidden;
+}
 
-  .container {
-    text-align: center;
-    animation: fadeIn 2s ease;
-  }
+/* -------- HERO -------- */
+.hero {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  text-align: center;
+}
 
-  h1 {
-    font-size: 5rem;
-    letter-spacing: 12px;
-    font-weight: 700;
-    margin-bottom: 20px;
-    text-shadow: 0 0 20px rgba(255,255,255,0.15);
-  }
+h1 {
+  font-size: 5rem;
+  letter-spacing: 12px;
+}
 
-  .subtitle {
-    font-size: 0.9rem;
-    letter-spacing: 4px;
-    opacity: 0.6;
-    margin-bottom: 40px;
-  }
+.subtitle {
+  opacity: 0.5;
+  margin: 20px 0;
+  letter-spacing: 4px;
+}
 
-  #countdown {
-    font-size: 2rem;
-    font-weight: 500;
-    letter-spacing: 3px;
-  }
+#countdown {
+  font-size: 2rem;
+}
 
-  .glow {
-    position: absolute;
-    width: 400px;
-    height: 400px;
-    background: rgba(255,255,255,0.03);
-    border-radius: 50%;
-    filter: blur(100px);
-    top: 30%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-  }
+/* scroll hint */
+.scroll {
+  position: absolute;
+  bottom: 30px;
+  font-size: 0.8rem;
+  opacity: 0.4;
+  animation: bounce 2s infinite;
+}
 
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
+@keyframes bounce {
+  0%,100% { transform: translateY(0); }
+  50% { transform: translateY(10px); }
+}
+
+/* -------- MAGAZINE -------- */
+.magazine {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+
+.mag-track {
+  display: flex;
+  height: 80%;
+  transition: transform 0.4s ease;
+}
+
+.page {
+  min-width: 100vw;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* vertical image (single page) */
+.page img.vertical {
+  height: 90%;
+  object-fit: cover;
+}
+
+/* horizontal = double spread */
+.page.double {
+  min-width: 200vw;
+}
+
+.page img.horizontal {
+  width: 90%;
+  object-fit: cover;
+}
+
+/* subtle fade edges */
+.magazine::before,
+.magazine::after {
+  content: "";
+  position: absolute;
+  width: 100px;
+  height: 100%;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.magazine::before {
+  left: 0;
+  background: linear-gradient(to right, black, transparent);
+}
+
+.magazine::after {
+  right: 0;
+  background: linear-gradient(to left, black, transparent);
+}
+
 </style>
 </head>
 
 <body>
 
-<div class="glow"></div>
-
-<div class="container">
+<!-- HERO -->
+<section class="hero">
   <h1>ICEMAN</h1>
   <div class="subtitle">A NEW ERA</div>
   <div id="countdown"></div>
-</div>
+  <div class="scroll">SCROLL ↓</div>
+</section>
+
+<!-- MAGAZINE -->
+<section class="magazine">
+  <div class="mag-track" id="track">
+
+    <!-- VERTICAL -->
+    <div class="page">
+      <img src="img1.jpg" class="vertical">
+    </div>
+
+    <!-- HORIZONTAL (DOUBLE PAGE) -->
+    <div class="page double">
+      <img src="img2.jpg" class="horizontal">
+    </div>
+
+    <!-- VERTICAL -->
+    <div class="page">
+      <img src="img3.jpg" class="vertical">
+    </div>
+
+  </div>
+</section>
 
 <script>
-  const releaseDate = new Date("2026-07-01T00:00:00");
+/* COUNTDOWN */
+const releaseDate = new Date("2026-07-01T00:00:00");
 
-  function updateCountdown() {
-    const now = new Date();
-    const diff = releaseDate - now;
+function updateCountdown() {
+  const now = new Date();
+  const diff = releaseDate - now;
 
-    if (diff <= 0) {
-      document.getElementById("countdown").innerHTML = "OUT NOW";
-      return;
-    }
-
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
-    const minutes = Math.floor((diff / (1000 * 60)) % 60);
-    const seconds = Math.floor((diff / 1000) % 60);
-
-    document.getElementById("countdown").innerHTML =
-      `${days} : ${hours} : ${minutes} : ${seconds}`;
+  if (diff <= 0) {
+    document.getElementById("countdown").innerHTML = "OUT NOW";
+    return;
   }
 
-  setInterval(updateCountdown, 1000);
+  const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+  const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
+  const m = Math.floor((diff / (1000 * 60)) % 60);
+  const s = Math.floor((diff / 1000) % 60);
+
+  document.getElementById("countdown").innerHTML =
+    `${d} : ${h} : ${m} : ${s}`;
+}
+setInterval(updateCountdown, 1000);
+
+/* SWIPE LOGIC */
+const track = document.getElementById("track");
+let index = 0;
+
+let startX = 0;
+
+document.addEventListener("touchstart", e => {
+  startX = e.touches[0].clientX;
+});
+
+document.addEventListener("touchend", e => {
+  let endX = e.changedTouches[0].clientX;
+  let diff = startX - endX;
+
+  if (diff > 50) index++;
+  if (diff < -50) index--;
+
+  index = Math.max(0, Math.min(index, track.children.length - 1));
+
+  track.style.transform = `translateX(-${index * 100}vw)`;
+});
 </script>
 
 </body>
