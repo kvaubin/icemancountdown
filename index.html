@@ -35,7 +35,7 @@
     /* ===== HERO ===== */
     #hero {
       background: url('background.jpeg') center center / cover no-repeat;
-      gap: 24px;
+      gap: 32px;
     }
     #hero::before {
       content: '';
@@ -55,21 +55,6 @@
       font-size: 18px;
       color: #ddd;
       letter-spacing: 4px;
-    }
-
-    .singles {
-      display: flex;
-      gap: 14px;
-      flex-wrap: wrap;
-      justify-content: center;
-      max-width: 880px;
-      padding: 0 16px;
-    }
-    .singles iframe {
-      width: 260px;
-      height: 152px;
-      border-radius: 12px;
-      border: none;
     }
 
     .scroll-hint {
@@ -132,7 +117,6 @@
     /* ===== MOBILE ===== */
     @media (max-width: 768px) {
       .logo img { width: 160px; }
-      .singles iframe { width: 88vw; height: 140px; }
     }
   </style>
 </head>
@@ -147,26 +131,9 @@
     <!-- HERO -->
     <section id="hero">
       <div class="logo">
-        <img src="logo.jpeg" alt="Iceman">
+        <img src="logo.png" alt="Iceman">
       </div>
       <div class="countdown" id="countdown">Loading...</div>
-      <div class="singles">
-        <iframe
-          allow="autoplay *; encrypted-media *; fullscreen *"
-          sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-top-navigation-by-user-activation"
-          src="https://embed.music.apple.com/ca/album/what-did-i-miss/1824600278?i=1824600280">
-        </iframe>
-        <iframe
-          allow="autoplay *; encrypted-media *; fullscreen *"
-          sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-top-navigation-by-user-activation"
-          src="https://embed.music.apple.com/ca/album/which-one/1828770371?i=1828770374">
-        </iframe>
-        <iframe
-          allow="autoplay *; encrypted-media *; fullscreen *"
-          sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-top-navigation-by-user-activation"
-          src="https://embed.music.apple.com/ca/album/dog-house/1838368565?i=1838368566">
-        </iframe>
-      </div>
       <div class="scroll-hint">↓ &nbsp; S C R O L L</div>
     </section>
 
