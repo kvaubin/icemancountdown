@@ -47,7 +47,7 @@
     #hero > * { position: relative; z-index: 1; }
 
     .logo img {
-      width: 220px;
+      width: 340px;
       object-fit: contain;
     }
 
@@ -59,7 +59,7 @@
 
     .scroll-hint {
       position: absolute;
-      bottom: 30px;
+      bottom: 16px;
       z-index: 1;
       font-size: 11px;
       letter-spacing: 4px;
@@ -116,7 +116,7 @@
 
     /* ===== MOBILE ===== */
     @media (max-width: 768px) {
-      .logo img { width: 160px; }
+      .logo img { width: 240px; }
     }
   </style>
 </head>
@@ -152,7 +152,7 @@
 
   <script>
     // Countdown
-    const target = new Date("2026-05-01T00:00:00").getTime();
+    const target = new Date("2026-05-15T00:00:00").getTime();
     const countdownEl = document.getElementById("countdown");
     function tick() {
       const diff = target - Date.now();
